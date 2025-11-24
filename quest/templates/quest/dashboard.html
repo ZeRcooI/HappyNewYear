@@ -1,0 +1,319 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Secret Documents</title>
+    <link rel="stylesheet" href="{% static 'quest/hacker.css' %}">
+</head>
+<body>
+<div class="screen-noise"></div>
+
+<div class="wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-title">FILE SYSTEM // HNY-28893</div>
+        <ul class="folder-list">
+            <li>
+                <div class="folder-icon"></div>
+                <div class="folder-label">/evidence/photos</div>
+            </li>
+            <li>
+                <div class="folder-icon"></div>
+                <div class="folder-label">/evidence/newspapers</div>
+            </li>
+            <li>
+                <div class="folder-icon"></div>
+                <div class="folder-label">/evidence/videos</div>
+            </li>
+        </ul>
+
+        <div class="sidebar-title">SYSTEM</div>
+        <ul class="folder-list">
+            <li class="folder-clickable" id="openTrashBtn">
+                <div class="folder-icon folder-trash"></div>
+                <div class="folder-label">Корзина [удалённый файл]</div>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main">
+        <div class="main-header">
+            <div class="main-title">NEW YEAR GIFT HACK PANEL</div>
+            <div class="main-meta">
+                STATUS: ONLINE · GIFTS: 1 / 5 · USER: FRIEND-ACCESS
+                · <a href="{% url 'logout' %}" class="logout-link">logout</a>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <!-- ПОДАРОК 1 -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="gift-id">Подарок #28893</div>
+                    <div class="tag">TARGET: AUTOID</div>
+                </div>
+
+                <div class="progress-wrap">
+                    <div class="progress-label">
+                        <span>Прогресс нахождения подарка</span>
+                        <span id="gift1-percent">{{ gift1_done|yesno:"100%,0%" }}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-inner"
+                             id="gift1-bar"
+                             data-complete="{{ gift1_done|yesno:'100,0' }}"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card-section-title">ЭТАП 1 · VIN</div>
+                    <div>
+                        Чтобы открыть место подарка, введи корректный VIN автомобиля.
+                        Он зашифрован в “удалённом” файле (диктофон) — см. корзину.
+                    </div>
+
+                    <div class="input-row">
+                        <input type="text"
+                               id="vinInput"
+                               placeholder="Введите код ({{ vin_code_len }} символов)"
+                               autocomplete="off">
+                        <button id="vinSubmitBtn" type="button">verify</button>
+                        <button id="decodeTestBtn" type="button" style="border-color:#ff0; color:#ff0;">encode test</button>
+                    </div>
+                    <div id="vinError" style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
+                </div>
+
+                <div id="gift1-clue"
+                     class="card-hint {% if not gift1_done %}hidden{% endif %}">
+                    <strong>ДЕКОДИРОВАНО:</strong><br>
+                    На кадрах видно, что подарок спрятан в зоне:
+                    <em>“бордачок багажника сзади”</em> 🎁<br>
+                    Осталось только найти его в реальной жизни.
+                </div>
+            </section>
+
+            <section class="card trash-card">
+                <div class="card-header">
+                    <div>Корзина · Удалённый файл</div>
+                    <div class="tag">ACCESS: PASSWORD</div>
+                </div>
+                <div class="trash-hint">
+                    В корзине лежит “удалённый” файл — запись с диктофона.
+                    В конце записи хакерским голосом называют VIN автомобиля.
+                </div>
+                <div class="trash-hint">
+                    Чтобы открыть корзину, нужен пароль.
+                    Подсказка: {{ trash_hint }}
+                </div>
+                <div style="font-size:11px; opacity:0.75;">
+                    * Можно кликнуть по “Корзина [удалённый файл]” слева, чтобы ввести пароль.
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<div class="modal-backdrop" id="trashModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">TRASH /// DELETED FILE</div>
+            <div class="modal-close" id="trashClose">&times;</div>
+        </div>
+        <div class="modal-body">
+            <div>
+                Для доступа к удалённому файлу введите пароль.<br>
+            </div>
+            <input type="password" id="trashPassword" placeholder="введите пароль">
+            <button type="button" id="trashSubmit">unlock</button>
+
+            <div class="modal-message" id="trashMessage"></div>
+
+            <div id="trashContent" style="display:none; margin-top:10px;">
+                <div>[SYSTEM] Удалённый файл восстановлен:</div>
+                <div>- Тип: audio/record</div>
+                <div style="margin-top:6px;">
+                    <audio id="vinAudio" controls></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (const cookie of cookies) {
+            const c = cookie.trim();
+            if (c.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(c.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+(function() {
+    const bar = document.getElementById('gift1-bar');
+    const percentLabel = document.getElementById('gift1-percent');
+    if (!bar) return;
+    const complete = parseInt(bar.dataset.complete || '0', 10);
+    requestAnimationFrame(() => {
+        bar.style.width = complete + '%';
+    });
+})();
+
+(function() {
+    const input = document.getElementById('vinInput');
+    const btn = document.getElementById('vinSubmitBtn');
+    const err = document.getElementById('vinError');
+    const bar = document.getElementById('gift1-bar');
+    const percentLabel = document.getElementById('gift1-percent');
+    const clue = document.getElementById('gift1-clue');
+
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+        err.textContent = '';
+        const vin = (input.value || '').trim();
+        if (!vin) {
+            err.textContent = 'Введите VIN.';
+            return;
+        }
+
+        fetch("{% url 'check_vin' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({vin})
+        }).then(r => r.json())
+          .then(data => {
+              if (data.ok) {
+                  bar.style.width = '100%';
+                  percentLabel.textContent = '100%';
+                  clue.classList.remove('hidden');
+                  localStorage.setItem('gift1_done', '1');
+              } else {
+                  err.textContent = 'Неверный VIN. Попробуй ещё.';
+              }
+          }).catch(() => {
+              err.textContent = 'Системная ошибка. Попробуй ещё раз.'; 
+          });
+    });
+
+    if (localStorage.getItem('gift1_done') === '1') {
+        bar.style.width = '100%';
+        percentLabel.textContent = '100%';
+        clue.classList.remove('hidden');
+    }
+})();
+
+(function() {
+    const openBtn = document.getElementById('openTrashBtn');
+    const modal = document.getElementById('trashModal');
+    const closeBtn = document.getElementById('trashClose');
+    const passInput = document.getElementById('trashPassword');
+    const submitBtn = document.getElementById('trashSubmit');
+    const msg = document.getElementById('trashMessage');
+    const content = document.getElementById('trashContent');
+    const audio = document.getElementById('vinAudio');
+
+    if (!openBtn) return;
+
+    function openModal() {
+        modal.classList.add('active');
+        msg.textContent = '';
+        msg.classList.remove('error');
+        content.style.display = 'none';
+        passInput.value = '';
+        setTimeout(() => passInput.focus(), 100);
+    }
+
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    submitBtn.addEventListener('click', () => {
+        msg.textContent = '';
+        msg.classList.remove('error');
+        content.style.display = 'none';
+
+        const password = (passInput.value || '').trim();
+        if (!password) {
+            msg.textContent = 'Введите пароль.';
+            msg.classList.add('error');
+            return;
+        }
+
+        fetch("{% url 'open_trash' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({password})
+        }).then(r => r.json())
+          .then(data => {
+              if (data.ok) {
+                  msg.textContent = data.message || 'Доступ разрешён.';
+                  if (data.vin_audio_url) {
+                      audio.src = data.vin_audio_url;
+                  }
+                  content.style.display = 'block';
+              } else {
+                  msg.textContent = data.error || 'Неверный пароль.';
+                  msg.classList.add('error');
+              }
+          }).catch(() => {
+              msg.textContent = 'Системная ошибка.';
+              msg.classList.add('error');
+          });
+    });
+})();
+
+(function() {
+    const testBtn = document.getElementById('decodeTestBtn');
+    if (!testBtn) return;
+
+    const bar = document.getElementById('gift1-bar');
+    const percentLabel = document.getElementById('gift1-percent');
+    const clue = document.getElementById('gift1-clue');
+    const input = document.getElementById('vinInput');
+    const err = document.getElementById('vinError');
+
+    testBtn.addEventListener('click', () => {
+        bar.style.width = '0%';
+        percentLabel.textContent = '0%';
+        clue.classList.add('hidden');
+        if (input) input.value = '';
+        if (err) err.textContent = '';
+        localStorage.removeItem('gift1_done');
+
+        fetch("{% url 'reset_vin' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({})
+        });
+    });
+})();
+</script>
+
+</body>
+</html>

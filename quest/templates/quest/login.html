@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>ACCESS GATE</title>
+    <link rel="stylesheet" href="{% static 'quest/hacker.css' %}">
+</head>
+<body>
+<div class="screen-noise"></div>
+
+<div class="login-wrapper">
+    <div class="login-terminal">
+        <div class="term-header">
+            <div class="lights">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="term-title">HNY-ACCESS NODE</div>
+        </div>
+        <div class="term-body">
+            <div class="term-line">[SYSTEM] Новогодний поиск подарков активирован.</div>
+            <div class="term-line">[AUTH] Для входа на узел введите код доступа.</div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="term-line term-prompt">root@happy-new-year:~$ enter_access_code</div>
+                <div class="term-input-row">
+                    <span>&gt;</span>
+                    <input type="text" placeholder="детище + steam" name="access_code" autocomplete="off" autofocus>
+                    <button type="submit">enter</button>
+                </div>
+            </form>
+
+            {% if error %}
+                <div class="term-error">{{ error }}</div>
+            {% endif %}
+
+            {% comment %} <div class="term-line" style="margin-top:12px; font-size:11px; opacity:0.8;">
+                * Подсказка: код доступа может быть спрятать в “уликах” / видео / газете.
+            </div> {% endcomment %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
