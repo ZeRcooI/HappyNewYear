@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>ACCESS GATE</title>
-    <link rel="stylesheet" href="{% static 'quest/hacker.css' %}">
+    <link rel="stylesheet" href="{% static 'quest/css/hacker.css' %}">
 </head>
 <body>
 <div class="screen-noise"></div>
@@ -34,13 +34,8 @@
             {% if error %}
                 <div class="term-error">{{ error }}</div>
             {% endif %}
-
-            {% comment %} <div class="term-line" style="margin-top:12px; font-size:11px; opacity:0.8;">
-                * Подсказка: код доступа может быть спрятать в “уликах” / видео / газете.
-            </div> {% endcomment %}
         </div>
     </div>
 </div>
-
 </body>
 </html>

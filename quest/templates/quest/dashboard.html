@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Secret Documents</title>
-    <link rel="stylesheet" href="{% static 'quest/hacker.css' %}">
+    <link rel="stylesheet" href="{% static 'quest/css/hacker.css' %}">
 </head>
 <body>
 <div class="screen-noise"></div>
@@ -13,25 +13,28 @@
     <aside class="sidebar">
         <div class="sidebar-title">FILE SYSTEM // HNY-28893</div>
         <ul class="folder-list">
-            <li>
-                <div class="folder-icon"></div>
-                <div class="folder-label">/evidence/photos</div>
-            </li>
-            <li>
-                <div class="folder-icon"></div>
-                <div class="folder-label">/evidence/newspapers</div>
-            </li>
-            <li>
-                <div class="folder-icon"></div>
-                <div class="folder-label">/evidence/videos</div>
-            </li>
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_photos' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/photos</div>
+          </li>
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_newspapers' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/newspapers</div>
+          </li>
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_videos' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/videos</div>
+          </li>
         </ul>
 
         <div class="sidebar-title">SYSTEM</div>
         <ul class="folder-list">
             <li class="folder-clickable" id="openTrashBtn">
                 <div class="folder-icon folder-trash"></div>
-                <div class="folder-label">Корзина [удалённый файл]</div>
+                <div class="folder-label">Корзина</div>
             </li>
         </ul>
     </aside>
@@ -40,73 +43,221 @@
         <div class="main-header">
             <div class="main-title">NEW YEAR GIFT HACK PANEL</div>
             <div class="main-meta">
-                STATUS: ONLINE · GIFTS: 1 / 5 · USER: FRIEND-ACCESS
+                STATUS: ONLINE · GIFTS: 1 / 9 · USER: FRIEND-ACCESS
                 · <a href="{% url 'logout' %}" class="logout-link">logout</a>
             </div>
         </div>
 
-        <div class="card-grid">
-            <!-- ПОДАРОК 1 -->
+        <div class="card-grid gifts-grid">
+            <!-- ПОДАРОК 1  -->
             <section class="card">
                 <div class="card-header">
-                    <div class="gift-id">Подарок #28893</div>
+                    <div class="gift-id">Подарок #1</div>
                     <div class="tag">TARGET: AUTOID</div>
                 </div>
 
                 <div class="progress-wrap">
                     <div class="progress-label">
                         <span>Прогресс нахождения подарка</span>
-                        <span id="gift1-percent">{{ gift1_done|yesno:"100%,0%" }}</span>
+                        <span id="gift1-percent">{{ gift1_progress }}%</span>
                     </div>
                     <div class="progress-bar">
                         <div class="progress-inner"
                              id="gift1-bar"
-                             data-complete="{{ gift1_done|yesno:'100,0' }}"></div>
+                             data-complete="{{ gift1_progress }}"></div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="card-section-title">ЭТАП 1 · VIN</div>
-                    <div>
-                        Чтобы открыть место подарка, введи корректный VIN автомобиля.
-                        Он зашифрован в “удалённом” файле (диктофон) — см. корзину.
+                    <div class="card-section-title">ЭТАП 1 · АДРЕС</div>
+                    <div style="margin-bottom:8px;">
+                        Его ждали, чтобы собраться вместе. Куда спешил человек на такси,
+                        которому адресовывалось видео с приколом-уликой для нуждающихся в деньгах?
                     </div>
 
-                    <div class="input-row">
-                        <input type="text"
-                               id="vinInput"
-                               placeholder="Введите код ({{ vin_code_len }} символов)"
-                               autocomplete="off">
-                        <button id="vinSubmitBtn" type="button">verify</button>
-                        <button id="decodeTestBtn" type="button" style="border-color:#ff0; color:#ff0;">encode test</button>
+                    <div id="gift1Stage2"
+                         class="{% if not gift1_stage1 and not gift1_done %}hidden{% endif %}">
+                        <div class="card-section-title" style="margin-top:10px;">
+                            ЭТАП 2 · ПАРОЛЬ ОТ БД
+                        </div>
+                        <div>
+                            Сева, поздравляю! Теперь нужно вспомнить
+                            <strong>пароль от первой БД</strong>, что ты мне делал.
+                            Вспоминай, развлекайся, я сам заебался искать и не ошибись.
+                        </div>
                     </div>
-                    <div id="vinError" style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
+
+                    <div id="gift1Stage3"
+                         class="{% if not gift1_stage2 and not gift1_done %}hidden{% endif %}">
+                        <div class="card-section-title" style="margin-top:10px;">
+                            ЭТАП 3 · VIN ГАЗЕЛИ
+                        </div>
+                        <div>
+                            Введи VIN газели, которая привезла тебя сюда на праздник))))
+                        </div>
+                    </div>
+
+                    <div class="input-row" style="margin-top:10px;">
+                        <input type="text"
+                               id="gift1Input"
+                               placeholder="Этап 1: адрес без пробелов"
+                               autocomplete="off">
+                        <button id="gift1SubmitBtn"
+                                type="button"
+                                data-step1-url="{% url 'gift1_step1' %}"
+                                data-step2-url="{% url 'gift1_step2' %}"
+                                data-vin-url="{% url 'check_vin' %}">
+                            enter
+                        </button>
+                        <button id="decodeTestBtn"
+                                type="button"
+                                data-reset-url="{% url 'reset_vin' %}"
+                                style="border-color:#ff0; color:#ff0;">
+                            encode test
+                        </button>
+                    </div>
+                    <div id="gift1Error"
+                         style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
                 </div>
 
-                <div id="gift1-clue"
+                <!-- ФИНАЛЬНЫЙ ТЕКСТ ПОДАРКА #1 -->
+                <div id="gift1Final"
                      class="card-hint {% if not gift1_done %}hidden{% endif %}">
                     <strong>ДЕКОДИРОВАНО:</strong><br>
-                    На кадрах видно, что подарок спрятан в зоне:
-                    <em>“бордачок багажника сзади”</em> 🎁<br>
-                    Осталось только найти его в реальной жизни.
+                    <span data-final-text>
+                        Дабл ю дабл ю! Подарок лежит, где аптечка в машине, Юля подскажет🎁
+                    </span>
                 </div>
             </section>
 
-            <section class="card trash-card">
+            <!-- Подарок 2 -->
+            <section class="card">
                 <div class="card-header">
-                    <div>Корзина · Удалённый файл</div>
-                    <div class="tag">ACCESS: PASSWORD</div>
+                    <div class="gift-id">Подарок #2</div>
+                    <div class="tag">TARGET: TBD</div>
                 </div>
-                <div class="trash-hint">
-                    В корзине лежит “удалённый” файл — запись с диктофона.
-                    В конце записи хакерским голосом называют VIN автомобиля.
+
+                <div class="progress-wrap">
+                    <div class="progress-label">
+                        <span>Прогресс нахождения подарка</span>
+                        <span>{{ gift1_progress }}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-inner"
+                             style="width: {{ gift1_progress }}%;"></div>
+                    </div>
                 </div>
-                <div class="trash-hint">
-                    Чтобы открыть корзину, нужен пароль.
-                    Подсказка: {{ trash_hint }}
+
+                <div>
+                    <div class="card-section-title">ЭТАП 1 · ТЕКСТ</div>
+                    <div>
+                        Здесь будет задание / подсказка для второго подарка.
+                        Можно вообще без поля ввода — просто текст.
+                    </div>
                 </div>
-                <div style="font-size:11px; opacity:0.75;">
-                    * Можно кликнуть по “Корзина [удалённый файл]” слева, чтобы ввести пароль.
+            </section>
+
+            <!-- Подарок 3 -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="gift-id">Подарок #3</div>
+                    <div class="tag">TARGET: TBD</div>
+                </div>
+
+                <div class="progress-wrap">
+                    <div class="progress-label">
+                        <span>Прогресс нахождения подарка</span>
+                        <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-inner"
+                             style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card-section-title">ЭТАП 1 · КОД</div>
+                    <div>
+                        Тут можно будет сделать другое кодовое задание, например “детище + steam”.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Подарок 4 -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="gift-id">Подарок #4</div>
+                    <div class="tag">TARGET: TBD</div>
+                </div>
+
+                <div class="progress-wrap">
+                    <div class="progress-label">
+                        <span>Прогресс нахождения подарка</span>
+                        <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-inner"
+                             style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card-section-title">ЭТАП 1</div>
+                    <div>
+                        Любой текстовый квест/подсказка. Сюда потом вставишь своё.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Подарок 5 -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="gift-id">Подарок #5</div>
+                    <div class="tag">TARGET: TBD</div>
+                </div>
+
+                <div class="progress-wrap">
+                    <div class="progress-label">
+                        <span>Прогресс нахождения подарка</span>
+                        <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-inner"
+                             style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card-section-title">ЭТАП 1</div>
+                    <div>
+                        Контент для пятого подарка.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Подарок 6 -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="gift-id">Подарок #8</div>
+                    <div class="tag">TARGET: TBD</div>
+                </div>
+
+                <div class="progress-wrap">
+                    <div class="progress-label">
+                        <span>Прогресс нахождения подарка</span>
+                        <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-inner"
+                             style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card-section-title">ЭТАП 1</div>
+                    <div>
+                        Контент для восьмого подарка.
+                    </div>
                 </div>
             </section>
         </div>
@@ -121,10 +272,12 @@
         </div>
         <div class="modal-body">
             <div>
-                Для доступа к удалённому файлу введите пароль.<br>
+                Для доступа к удалённым файлам введите пароль.<br>
             </div>
             <input type="password" id="trashPassword" placeholder="введите пароль">
-            <button type="button" id="trashSubmit">unlock</button>
+            <button type="button"
+                    id="trashSubmit"
+                    data-open-url="{% url 'open_trash' %}">unlock</button>
 
             <div class="modal-message" id="trashMessage"></div>
 
@@ -139,181 +292,6 @@
     </div>
 </div>
 
-<script>
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (const cookie of cookies) {
-            const c = cookie.trim();
-            if (c.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(c.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-const csrftoken = getCookie('csrftoken');
-
-(function() {
-    const bar = document.getElementById('gift1-bar');
-    const percentLabel = document.getElementById('gift1-percent');
-    if (!bar) return;
-    const complete = parseInt(bar.dataset.complete || '0', 10);
-    requestAnimationFrame(() => {
-        bar.style.width = complete + '%';
-    });
-})();
-
-(function() {
-    const input = document.getElementById('vinInput');
-    const btn = document.getElementById('vinSubmitBtn');
-    const err = document.getElementById('vinError');
-    const bar = document.getElementById('gift1-bar');
-    const percentLabel = document.getElementById('gift1-percent');
-    const clue = document.getElementById('gift1-clue');
-
-    if (!btn) return;
-
-    btn.addEventListener('click', () => {
-        err.textContent = '';
-        const vin = (input.value || '').trim();
-        if (!vin) {
-            err.textContent = 'Введите VIN.';
-            return;
-        }
-
-        fetch("{% url 'check_vin' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({vin})
-        }).then(r => r.json())
-          .then(data => {
-              if (data.ok) {
-                  bar.style.width = '100%';
-                  percentLabel.textContent = '100%';
-                  clue.classList.remove('hidden');
-                  localStorage.setItem('gift1_done', '1');
-              } else {
-                  err.textContent = 'Неверный VIN. Попробуй ещё.';
-              }
-          }).catch(() => {
-              err.textContent = 'Системная ошибка. Попробуй ещё раз.'; 
-          });
-    });
-
-    if (localStorage.getItem('gift1_done') === '1') {
-        bar.style.width = '100%';
-        percentLabel.textContent = '100%';
-        clue.classList.remove('hidden');
-    }
-})();
-
-(function() {
-    const openBtn = document.getElementById('openTrashBtn');
-    const modal = document.getElementById('trashModal');
-    const closeBtn = document.getElementById('trashClose');
-    const passInput = document.getElementById('trashPassword');
-    const submitBtn = document.getElementById('trashSubmit');
-    const msg = document.getElementById('trashMessage');
-    const content = document.getElementById('trashContent');
-    const audio = document.getElementById('vinAudio');
-
-    if (!openBtn) return;
-
-    function openModal() {
-        modal.classList.add('active');
-        msg.textContent = '';
-        msg.classList.remove('error');
-        content.style.display = 'none';
-        passInput.value = '';
-        setTimeout(() => passInput.focus(), 100);
-    }
-
-    function closeModal() {
-        modal.classList.remove('active');
-    }
-
-    openBtn.addEventListener('click', openModal);
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-
-    submitBtn.addEventListener('click', () => {
-        msg.textContent = '';
-        msg.classList.remove('error');
-        content.style.display = 'none';
-
-        const password = (passInput.value || '').trim();
-        if (!password) {
-            msg.textContent = 'Введите пароль.';
-            msg.classList.add('error');
-            return;
-        }
-
-        fetch("{% url 'open_trash' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({password})
-        }).then(r => r.json())
-          .then(data => {
-              if (data.ok) {
-                  msg.textContent = data.message || 'Доступ разрешён.';
-                  if (data.vin_audio_url) {
-                      audio.src = data.vin_audio_url;
-                  }
-                  content.style.display = 'block';
-              } else {
-                  msg.textContent = data.error || 'Неверный пароль.';
-                  msg.classList.add('error');
-              }
-          }).catch(() => {
-              msg.textContent = 'Системная ошибка.';
-              msg.classList.add('error');
-          });
-    });
-})();
-
-(function() {
-    const testBtn = document.getElementById('decodeTestBtn');
-    if (!testBtn) return;
-
-    const bar = document.getElementById('gift1-bar');
-    const percentLabel = document.getElementById('gift1-percent');
-    const clue = document.getElementById('gift1-clue');
-    const input = document.getElementById('vinInput');
-    const err = document.getElementById('vinError');
-
-    testBtn.addEventListener('click', () => {
-        bar.style.width = '0%';
-        percentLabel.textContent = '0%';
-        clue.classList.add('hidden');
-        if (input) input.value = '';
-        if (err) err.textContent = '';
-        localStorage.removeItem('gift1_done');
-
-        fetch("{% url 'reset_vin' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({})
-        });
-    });
-})();
-</script>
-
+<script src="{% static 'quest/js/dashboard.js' %}"></script>
 </body>
 </html>

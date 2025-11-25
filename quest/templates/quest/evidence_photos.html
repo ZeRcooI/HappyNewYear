@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>EVIDENCE // PHOTOS</title>
+    <link rel="stylesheet" href="{% static 'quest/css/hacker.css' %}">
+</head>
+<body>
+<div class="screen-noise"></div>
+
+<div class="wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-title">FILE SYSTEM // HNY-28893</div>
+        <ul class="folder-list">
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_photos' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/photos</div>
+          </li>
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_newspapers' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/newspapers</div>
+          </li>
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_videos' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/videos</div>
+          </li>
+        </ul>
+
+        <div class="sidebar-title">SYSTEM</div>
+        <ul class="folder-list">
+            <li>
+                <div class="folder-icon folder-trash"></div>
+                <div class="folder-label">Корзина</div>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main">
+        <div class="main-header">
+            <div class="main-title">EVIDENCE /// PHOTOS</div>
+            <div class="main-meta">
+                NODE: HNY-28893 · <a href="{% url 'dashboard' %}" class="logout-link">back to panel</a>
+            </div>
+        </div>
+
+        <div class="gallery-grid">
+            {# Примеры — просто поменяй пути к фоткам под свои #}
+            <button class="gallery-item"
+                    data-type="photo"
+                    data-full-src="{% static 'quest/images/IMG_5683.PNG' %}"
+                    data-title="Фото 1: улики во дворе">
+                <img src="{% static 'quest/images/IMG_5683.PNG' %}" alt="Фото 1">
+            </button>
+
+            <button class="gallery-item"
+                    data-type="photo"
+                    data-full-src="{% static 'quest/photos/photo2.jpg' %}"
+                    data-title="Фото 2: подъезд">
+                <img src="{% static 'quest/photos/photo2.jpg' %}" alt="Фото 2">
+            </button>
+
+            <button class="gallery-item"
+                    data-type="photo"
+                    data-full-src="{% static 'quest/photos/photo3.jpg' %}"
+                    data-title="Фото 3: парковка">
+                <img src="{% static 'quest/photos/photo3.jpg' %}" alt="Фото 3">
+            </button>
+
+            {# добавляй ещё столько, сколько нужно #}
+        </div>
+    </main>
+</div>
+
+{# Общий модал для фото/видео #}
+<div class="gallery-backdrop" id="galleryBackdrop">
+    <div class="gallery-modal">
+        <div class="gallery-modal-header">
+            <span class="gallery-modal-title" id="galleryTitle"></span>
+            <span class="gallery-modal-close" id="galleryClose">&times;</span>
+        </div>
+        <div class="gallery-modal-body">
+            <img id="galleryImage" src="" alt="" style="display:none;">
+            <video id="galleryVideo" controls style="display:none;"></video>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'quest/js/evidence.js' %}"></script>
+</body>
+</html>
