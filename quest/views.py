@@ -116,12 +116,12 @@ def evidence_photos(request):
     })
 
 
-def evidence_newspapers(request):
+def evidence_files(request):
     guard = _require_quest_login(request)
     if guard:
         return guard
-    return render(request, 'quest/evidence_newspapers.html', {
-        'active_section': 'newspapers',
+    return render(request, 'quest/evidence_files.html', {
+        'active_section': 'files',
     })
 
 

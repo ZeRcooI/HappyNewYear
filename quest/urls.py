@@ -7,7 +7,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
 
     path('evidence/photos/', views.evidence_photos, name='evidence_photos'),
-    path('evidence/newspapers/', views.evidence_newspapers, name='evidence_newspapers'),
+    path('evidence/files/', views.evidence_files, name='evidence_files'),
     path('evidence/videos/', views.evidence_videos, name='evidence_videos'),
 
     path('api/gift1/step1/', views.gift1_step1, name='gift1_step1'),

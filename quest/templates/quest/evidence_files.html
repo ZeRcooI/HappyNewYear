@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Files</title>
+    <link rel="stylesheet" href="{% static 'quest/css/hacker.css' %}">
+</head>
+<body>
+
+<div class="screen-noise"></div>
+
+<div class="wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-title">FILE SYSTEM // HNY-28893</div>
+        <ul class="folder-list">
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_photos' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/photos</div>
+          </li>
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_files' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/files</div>
+          </li>
+          <li class="folder-clickable"
+              data-url="{% url 'evidence_videos' %}">
+              <div class="folder-icon"></div>
+              <div class="folder-label">/evidence/videos</div>
+          </li>
+        </ul>
+
+        <div class="sidebar-title">SYSTEM</div>
+        <ul class="folder-list">
+            <li class="folder-clickable" id="openTrashBtn">
+                <div class="folder-icon folder-trash"></div>
+                <div class="folder-label">Корзина</div>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main">
+        <div class="main-header">
+            <div class="main-title">EVIDENCE FILES</div>
+            <div class="main-meta">
+                SYSTEM // FILE LIST
+            </div>
+        </div>
+
+        <div class="gallery-grid">
+            <button class="gallery-item"
+                    type="button"
+                    data-file-url="{% static 'quest/files/Newspaper143.pdf' %}">
+               <div class="gallery-video-thumb">
+                   <div class="video-play-icon">📄</div>
+                   <div class="video-caption">Newspaper143.pdf</div>
+               </div>
+            </button>
+        </div>
+    </main>
+</div>
+
+<div class="gallery-backdrop" id="fileModal">
+  <div class="gallery-modal">
+    <div class="gallery-modal-header">
+      <div class="gallery-modal-title">FILE VIEWER</div>
+      <div class="gallery-modal-close" id="fileModalClose">&times;</div>
+    </div>
+    <div class="gallery-modal-body">
+      <iframe id="fileFrame"
+              style="width: 86vw; height: 78vh; border: none; border-radius: 6px;"
+              src="">
+      </iframe>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'quest/js/dashboard.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const navItems = document.querySelectorAll('.folder-clickable[data-url]');
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const url = item.dataset.url;
+        if (url) window.location.href = url;
+      });
+    });
+
+    const fileModal = document.getElementById('fileModal');
+    const fileFrame = document.getElementById('fileFrame');
+    const fileClose = document.getElementById('fileModalClose');
+
+    document.querySelectorAll('.gallery-item[data-file-url]').forEach(item => {
+      item.addEventListener('click', () => {
+        const url = item.dataset.fileUrl;
+        if (!url) return;
+        fileFrame.src = url;
+        fileModal.classList.add('active');
+      });
+    });
+
+    function closeFileModal() {
+      fileModal.classList.remove('active');
+      fileFrame.src = '';
+    }
+
+    if (fileClose) {
+      fileClose.addEventListener('click', closeFileModal);
+    }
+    fileModal.addEventListener('click', (e) => {
+      if (e.target === fileModal) {
+        closeFileModal();
+      }
+    });
+  });
+</script>
+</body>
+</html>
