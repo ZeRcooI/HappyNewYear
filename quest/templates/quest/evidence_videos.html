@@ -1,99 +1,65 @@
+{% extends 'quest/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>EVIDENCE // VIDEOS</title>
-    <link rel="stylesheet" href="{% static 'quest/css/hacker.css' %}">
-</head>
-<body>
-<div class="screen-noise"></div>
 
-<div class="wrapper">
-    <aside class="sidebar">
-        <div class="sidebar-title">FILE SYSTEM // HNY-28893</div>
-        <ul class="folder-list">
-          <li class="folder-clickable"
-              data-url="{% url 'evidence_photos' %}">
-              <div class="folder-icon"></div>
-              <div class="folder-label">/evidence/photos</div>
-          </li>
-          <li class="folder-clickable"
-              data-url="{% url 'evidence_files' %}">
-              <div class="folder-icon"></div>
-              <div class="folder-label">/evidence/files</div>
-          </li>
-          <li class="folder-clickable"
-              data-url="{% url 'evidence_videos' %}">
-              <div class="folder-icon"></div>
-              <div class="folder-label">/evidence/videos</div>
-          </li>
-        </ul>
+{% block title %}EVIDENCE // VIDEOS{% endblock %}
 
-        <div class="sidebar-title">SYSTEM</div>
-        <ul class="folder-list">
-            <li>
-                <div class="folder-icon folder-trash"></div>
-                <div class="folder-label">Корзина</div>
-            </li>
-        </ul>
-    </aside>
-
-    <main class="main">
-        <div class="main-header">
-            <div class="main-title">EVIDENCE /// VIDEOS</div>
-            <div class="main-meta">
-                NODE: HNY-28893 · <a href="{% url 'dashboard' %}" class="logout-link">back to panel</a>
-            </div>
-        </div>
-
-        <div class="gallery-grid">
-            <button class="gallery-item"
-                    data-type="video"
-                    data-full-src="{% static 'quest/video/This video is related to the person who owns the gift.mp4' %}"
-                    data-title="Видео 1: найденная улика">
-                <video class="gallery-thumb-video"
-                      src="{% static 'quest/video/This video is related to the person who owns the gift.mp4' %}"
-                      preload="metadata"
-                      muted>
-                </video>
-                <div class="gallery-video-overlay">
-                    <span class="video-play-icon">▶</span>
-                    <span class="video-caption">Видео 1</span>
-                </div>
-            </button>
-
-            <button class="gallery-item"
-                  data-type="video"
-                  data-full-src="{% static 'quest/video/clip2.mp4' %}"
-                  data-title="Видео 2: парковка">
-              <video class="gallery-thumb-video"
-                    src="{% static 'quest/video/clip2.mp4' %}"
-                    preload="metadata"
-                    muted>
-              </video>
-              <div class="gallery-video-overlay">
-                  <span class="video-play-icon">▶</span>
-                  <span class="video-caption">Видео 2</span>
-              </div>
-          </button>
-        </div>
-    </main>
-</div>
-
-<div class="gallery-backdrop" id="galleryBackdrop">
-    <div class="gallery-modal">
-        <div class="gallery-modal-header">
-            <span class="gallery-modal-title" id="galleryTitle"></span>
-            <span class="gallery-modal-close" id="galleryClose">&times;</span>
-        </div>
-        <div class="gallery-modal-body">
-            <img id="galleryImage" src="" alt="" style="display:none;">
-            <video id="galleryVideo" controls style="display:none;"></video>
-        </div>
+{% block main %}
+  <div class="main-header">
+    <div class="main-title">EVIDENCE /// VIDEOS</div>
+    <div class="main-meta">
+      NODE: HNY-28893 · <a href="{% url 'dashboard' %}" class="logout-link">back to panel</a>
     </div>
-</div>
+  </div>
 
-<script src="{% static 'quest/js/evidence.js' %}"></script>
-</body>
-</html>
+  <div class="gallery-grid">
+    <button class="gallery-item"
+            data-type="video"
+            data-full-src="{% static 'quest/video/This video is related to the person who owns the gift.mp4' %}"
+            data-title="Видео 1: найденная улика">
+      <video class="gallery-thumb-video"
+             src="{% static 'quest/video/This video is related to the person who owns the gift.mp4' %}"
+             preload="metadata"
+             muted>
+      </video>
+      <div class="gallery-video-overlay">
+        <span class="video-play-icon">▶</span>
+        <span class="video-caption">Видео 1</span>
+      </div>
+    </button>
+
+    <button class="gallery-item"
+            data-type="video"
+            data-full-src="{% static 'quest/video/clip2.mp4' %}"
+            data-title="Видео 2: парковка">
+      <video class="gallery-thumb-video"
+             src="{% static 'quest/video/clip2.mp4' %}"
+             preload="metadata"
+             muted>
+      </video>
+      <div class="gallery-video-overlay">
+        <span class="video-play-icon">▶</span>
+        <span class="video-caption">Видео 2</span>
+      </div>
+    </button>
+  </div>
+{% endblock %}
+
+{% block modals %}
+  {{ block.super }}
+  <div class="gallery-backdrop" id="galleryBackdrop">
+    <div class="gallery-modal">
+      <div class="gallery-modal-header">
+        <span class="gallery-modal-title" id="galleryTitle"></span>
+        <span class="gallery-modal-close" id="galleryClose">&times;</span>
+      </div>
+      <div class="gallery-modal-body">
+        <img id="galleryImage" src="" alt="" style="display:none;">
+        <video id="galleryVideo" controls style="display:none;"></video>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'quest/js/evidence.js' %}"></script>
+{% endblock %}

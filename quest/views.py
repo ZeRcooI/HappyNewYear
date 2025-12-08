@@ -4,11 +4,76 @@ from django.views.decorators.http import require_POST
 
 LOGIN_CODE = "fitbud2556"
 GIFT1_STAGE1_CODE = "ГРЕКОВА5"
-TRASH_PASSWORD = "),OK<A2Wbo^-#H"
+BD_PASSWORD = "),OK<A2Wbo^-#H"
 VIN_CODE = "KMHR381ABMU202591"
+TRASH_PASSWORD = "solo322"
+
 
 def _normalize_code(value: str) -> str:
     return ''.join(value.split()).upper()
+
+
+def normalize_pw(pw: str) -> str:
+    if not pw:
+        return ""
+
+    pw = pw.strip().lower()
+
+    ru_to_en = {
+        "а": "a",
+        "б": "b",
+        "в": "v",
+        "г": "g",
+        "д": "d",
+        "е": "e",
+        "ё": "e",
+        "ж": "zh",
+        "з": "z",
+        "и": "i",
+        "й": "i",
+        "к": "k",
+        "л": "l",
+        "м": "m",
+        "н": "n",
+        "о": "o",
+        "п": "p",
+        "р": "r",
+        "с": "s",
+        "т": "t",
+        "у": "u",
+        "ф": "f",
+        "х": "h",
+        "ц": "c",
+        "ч": "ch",
+        "ш": "sh",
+        "щ": "shch",
+        "ъ": "",
+        "ы": "y",
+        "ь": "",
+        "э": "e",
+        "ю": "yu",
+        "я": "ya",
+    }
+    return "".join(ru_to_en.get(ch, ch) for ch in pw)
+
+
+def _is_fav_game_ok(value: str) -> bool:
+    code = _normalize_code(value)
+    allowed = {
+        "SIMS", "SIMS4", "THESIMS", "THESIMS4",
+        "СИМС", "СИМС4",
+    }
+    return code in allowed
+
+
+def _is_megatron_ok(value: str) -> bool:
+    code = _normalize_code(value)
+    return code in {"МЕГАТРОН", "MEGATRON"}
+
+
+def _is_photo_choice_ok(value: str) -> bool:
+    code = _normalize_code(value)
+    return code in {"ПОЧЕШЕМ"}
 
 
 def _require_quest_login(request):
@@ -29,14 +94,16 @@ def login_view(request):
             return redirect('dashboard')
         else:
             error = 'Неверный код доступа. Попробуй ещё.'
-
     return render(request, 'quest/login.html', {'error': error})
 
 
 def logout_view(request):
-    request.session.pop('quest_logged_in', None)
-    request.session.pop('gift1_done', None)
-
+    for key in [
+        'quest_logged_in',
+        'gift1_stage1', 'gift1_stage2', 'gift1_done',
+        'gift2_stage1', 'gift2_stage2', 'gift2_done',
+    ]:
+        request.session.pop(key, None)
     return redirect('login')
 
 
@@ -59,7 +126,7 @@ def gift1_step2(request):
         return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
 
     pwd = request.POST.get('password', '') or ''
-    if pwd == TRASH_PASSWORD:
+    if pwd == BD_PASSWORD:
         request.session['gift1_stage2'] = True
         return JsonResponse({'ok': True})
     return JsonResponse({'ok': False, 'error': 'wrong_password'})
@@ -73,6 +140,10 @@ def check_vin(request):
     vin = request.POST.get('vin', '').strip().upper()
     if vin == VIN_CODE:
         request.session['gift1_done'] = True
+        return JsonResponse({
+            'ok': True,
+            'final_text': 'Дабл ю дабл ю! Подарок лежит, где аптечка в машине, Юля подскажет🎁',
+        })
     return JsonResponse({'ok': False, 'error': 'wrong_vin'})
 
 
@@ -94,11 +165,30 @@ def dashboard(request):
     else:
         gift1_progress = 0
 
+    gift2_done = request.session.get('gift2_done', False)
+    gift2_stage1 = request.session.get('gift2_stage1', False)
+    gift2_stage2 = request.session.get('gift2_stage2', False)
+
+    if gift2_done:
+        gift2_progress = 100
+    elif gift2_stage2:
+        gift2_progress = 66
+    elif gift2_stage1:
+        gift2_progress = 33
+    else:
+        gift2_progress = 0
+
     context = {
         'gift1_done': gift1_done,
         'gift1_stage1': gift1_stage1,
         'gift1_stage2': gift1_stage2,
         'gift1_progress': gift1_progress,
+
+        'gift2_done': gift2_done,
+        'gift2_stage1': gift2_stage1,
+        'gift2_stage2': gift2_stage2,
+        'gift2_progress': gift2_progress,
+
         'vin_code_len': len(VIN_CODE),
         'vin_code': VIN_CODE,
         'trash_hint': 'Подсказка: посмотри название видоса в уликах.',
@@ -138,15 +228,16 @@ def evidence_videos(request):
 def open_trash(request):
     if not request.session.get('quest_logged_in'):
         return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+    
+    raw_pwd = request.POST.get('password', '') or ''
 
-    pwd = request.POST.get('password', '').strip()
-    if pwd == TRASH_PASSWORD:
+    if normalize_pw(raw_pwd) == normalize_pw(TRASH_PASSWORD):
         return JsonResponse({
             'ok': True,
             'message': 'Удалённый файл восстановлен.',
             'vin_audio_url': '/static/quest/audio/vin-record.mp3',
         })
-    return JsonResponse({'ok': False, 'error': 'wrong_password'})
+    return JsonResponse({'ok': False, 'error': 'Неверный пароль'})
 
 
 @require_POST
@@ -154,7 +245,49 @@ def reset_vin(request):
     if not request.session.get('quest_logged_in'):
         return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
 
-    for key in ['gift1_stage1', 'gift1_stage2', 'gift1_done']:
-        request.session.pop(key, None)
-
+    for key in list(request.session.keys()):
+        if key.startswith('gift'):
+            request.session.pop(key, None)
     return JsonResponse({'ok': True})
+
+
+@require_POST
+def gift2_step1(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_fav_game_ok(answer):
+        request.session['gift2_stage1'] = True
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+@require_POST
+def gift2_step2(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_megatron_ok(answer):
+        request.session['gift2_stage2'] = True
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+@require_POST
+def gift2_step3(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_photo_choice_ok(answer):
+        request.session['gift2_done'] = True
+        return JsonResponse({
+            'ok': True,
+            'final_text': (
+                "Локация разблокирована! Твой подарок уже очень давно "
+                "лежит в Figma - ищи его за логотипом 🎁"
+            ),
+        })
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})

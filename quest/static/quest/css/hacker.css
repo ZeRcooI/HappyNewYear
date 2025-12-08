@@ -620,3 +620,15 @@ a:hover {
   font-size: 12px;
   opacity: 0.9;
 }
+
+.reset_btn {
+  display: block;
+  margin: 0 auto;
+  margin-top: 30px;
+  border-radius: 10px;
+  background-color: #ff2600;
+  height: 50px;
+  width: 400px;
+  color: #fff;
+  font-weight: 900;
+}

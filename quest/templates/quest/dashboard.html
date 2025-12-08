@@ -1,297 +1,285 @@
+{% extends 'quest/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Secret Documents</title>
-    <link rel="stylesheet" href="{% static 'quest/css/hacker.css' %}">
-</head>
-<body>
-<div class="screen-noise"></div>
 
-<div class="wrapper">
-    <aside class="sidebar">
-        <div class="sidebar-title">FILE SYSTEM // HNY-28893</div>
-        <ul class="folder-list">
-          <li class="folder-clickable"
-              data-url="{% url 'evidence_photos' %}">
-              <div class="folder-icon"></div>
-              <div class="folder-label">/evidence/photos</div>
-          </li>
-          <li class="folder-clickable"
-              data-url="{% url 'evidence_files' %}">
-              <div class="folder-icon"></div>
-              <div class="folder-label">/evidence/files</div>
-          </li>
-          <li class="folder-clickable"
-              data-url="{% url 'evidence_videos' %}">
-              <div class="folder-icon"></div>
-              <div class="folder-label">/evidence/videos</div>
-          </li>
-        </ul>
+{% block title %}Secret Documents{% endblock %}
 
-        <div class="sidebar-title">SYSTEM</div>
-        <ul class="folder-list">
-            <li class="folder-clickable" id="openTrashBtn">
-                <div class="folder-icon folder-trash"></div>
-                <div class="folder-label">Корзина</div>
-            </li>
-        </ul>
-    </aside>
-
-    <main class="main">
-        <div class="main-header">
-            <div class="main-title">NEW YEAR GIFT HACK PANEL</div>
-            <div class="main-meta">
-                STATUS: ONLINE · GIFTS: 1 / 9 · USER: FRIEND-ACCESS
-                · <a href="{% url 'logout' %}" class="logout-link">logout</a>
-            </div>
-        </div>
-
-        <div class="card-grid gifts-grid">
-            <!-- ПОДАРОК 1  -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="gift-id">Подарок #1</div>
-                    <div class="tag">TARGET: AUTOID</div>
-                </div>
-
-                <div class="progress-wrap">
-                    <div class="progress-label">
-                        <span>Прогресс нахождения подарка</span>
-                        <span id="gift1-percent">{{ gift1_progress }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-inner"
-                             id="gift1-bar"
-                             data-complete="{{ gift1_progress }}"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="card-section-title">ЭТАП 1 · АДРЕС</div>
-                    <div style="margin-bottom:8px;">
-                        Его ждали, чтобы собраться вместе. Куда спешил человек на такси,
-                        которому адресовывалось видео с приколом-уликой для нуждающихся в деньгах?
-                    </div>
-
-                    <div id="gift1Stage2"
-                         class="{% if not gift1_stage1 and not gift1_done %}hidden{% endif %}">
-                        <div class="card-section-title" style="margin-top:10px;">
-                            ЭТАП 2 · ПАРОЛЬ ОТ БД
-                        </div>
-                        <div>
-                            Сева, поздравляю! Теперь нужно вспомнить
-                            <strong>пароль от первой БД</strong>, что ты мне делал.
-                            Вспоминай, развлекайся, я сам заебался искать и не ошибись.
-                        </div>
-                    </div>
-
-                    <div id="gift1Stage3"
-                         class="{% if not gift1_stage2 and not gift1_done %}hidden{% endif %}">
-                        <div class="card-section-title" style="margin-top:10px;">
-                            ЭТАП 3 · VIN ГАЗЕЛИ
-                        </div>
-                        <div>
-                            Введи VIN газели, которая привезла тебя сюда на праздник))))
-                        </div>
-                    </div>
-
-                    <div class="input-row" style="margin-top:10px;">
-                        <input type="text"
-                               id="gift1Input"
-                               placeholder="Этап 1: адрес без пробелов"
-                               autocomplete="off">
-                        <button id="gift1SubmitBtn"
-                                type="button"
-                                data-step1-url="{% url 'gift1_step1' %}"
-                                data-step2-url="{% url 'gift1_step2' %}"
-                                data-vin-url="{% url 'check_vin' %}">
-                            enter
-                        </button>
-                        <button id="decodeTestBtn"
-                                type="button"
-                                data-reset-url="{% url 'reset_vin' %}"
-                                style="border-color:#ff0; color:#ff0;">
-                            encode test
-                        </button>
-                    </div>
-                    <div id="gift1Error"
-                         style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
-                </div>
-
-                <!-- ФИНАЛЬНЫЙ ТЕКСТ ПОДАРКА #1 -->
-                <div id="gift1Final"
-                     class="card-hint {% if not gift1_done %}hidden{% endif %}">
-                    <strong>ДЕКОДИРОВАНО:</strong><br>
-                    <span data-final-text>
-                        Дабл ю дабл ю! Подарок лежит, где аптечка в машине, Юля подскажет🎁
-                    </span>
-                </div>
-            </section>
-
-            <!-- Подарок 2 -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="gift-id">Подарок #2</div>
-                    <div class="tag">TARGET: TBD</div>
-                </div>
-
-                <div class="progress-wrap">
-                    <div class="progress-label">
-                        <span>Прогресс нахождения подарка</span>
-                        <span>{{ gift1_progress }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-inner"
-                             style="width: {{ gift1_progress }}%;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="card-section-title">ЭТАП 1 · ТЕКСТ</div>
-                    <div>
-                        Здесь будет задание / подсказка для второго подарка.
-                        Можно вообще без поля ввода — просто текст.
-                    </div>
-                </div>
-            </section>
-
-            <!-- Подарок 3 -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="gift-id">Подарок #3</div>
-                    <div class="tag">TARGET: TBD</div>
-                </div>
-
-                <div class="progress-wrap">
-                    <div class="progress-label">
-                        <span>Прогресс нахождения подарка</span>
-                        <span>{{ gift1_done|yesno:"100%,0%" }}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-inner"
-                             style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="card-section-title">ЭТАП 1 · КОД</div>
-                    <div>
-                        Тут можно будет сделать другое кодовое задание, например “детище + steam”.
-                    </div>
-                </div>
-            </section>
-
-            <!-- Подарок 4 -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="gift-id">Подарок #4</div>
-                    <div class="tag">TARGET: TBD</div>
-                </div>
-
-                <div class="progress-wrap">
-                    <div class="progress-label">
-                        <span>Прогресс нахождения подарка</span>
-                        <span>{{ gift1_done|yesno:"100%,0%" }}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-inner"
-                             style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="card-section-title">ЭТАП 1</div>
-                    <div>
-                        Любой текстовый квест/подсказка. Сюда потом вставишь своё.
-                    </div>
-                </div>
-            </section>
-
-            <!-- Подарок 5 -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="gift-id">Подарок #5</div>
-                    <div class="tag">TARGET: TBD</div>
-                </div>
-
-                <div class="progress-wrap">
-                    <div class="progress-label">
-                        <span>Прогресс нахождения подарка</span>
-                        <span>{{ gift1_done|yesno:"100%,0%" }}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-inner"
-                             style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="card-section-title">ЭТАП 1</div>
-                    <div>
-                        Контент для пятого подарка.
-                    </div>
-                </div>
-            </section>
-
-            <!-- Подарок 6 -->
-            <section class="card">
-                <div class="card-header">
-                    <div class="gift-id">Подарок #8</div>
-                    <div class="tag">TARGET: TBD</div>
-                </div>
-
-                <div class="progress-wrap">
-                    <div class="progress-label">
-                        <span>Прогресс нахождения подарка</span>
-                        <span>{{ gift1_done|yesno:"100%,0%" }}</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-inner"
-                             style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="card-section-title">ЭТАП 1</div>
-                    <div>
-                        Контент для восьмого подарка.
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-</div>
-
-<div class="modal-backdrop" id="trashModal">
-    <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title">TRASH /// DELETED FILE</div>
-            <div class="modal-close" id="trashClose">&times;</div>
-        </div>
-        <div class="modal-body">
-            <div>
-                Для доступа к удалённым файлам введите пароль.<br>
-            </div>
-            <input type="password" id="trashPassword" placeholder="введите пароль">
-            <button type="button"
-                    id="trashSubmit"
-                    data-open-url="{% url 'open_trash' %}">unlock</button>
-
-            <div class="modal-message" id="trashMessage"></div>
-
-            <div id="trashContent" style="display:none; margin-top:10px;">
-                <div>[SYSTEM] Удалённый файл восстановлен:</div>
-                <div>- Тип: audio/record</div>
-                <div style="margin-top:6px;">
-                    <audio id="vinAudio" controls></audio>
-                </div>
-            </div>
-        </div>
+{% block main %}
+  <div class="main-header">
+    <div class="main-title">NEW YEAR GIFT HACK PANEL</div>
+    <div class="main-meta">
+      STATUS: ONLINE · GIFTS: 1 / 8 · USER: FRIEND-ACCESS
+      · <a href="{% url 'logout' %}" class="logout-link">logout</a>
     </div>
-</div>
+  </div>
 
-<script src="{% static 'quest/js/dashboard.js' %}"></script>
-</body>
-</html>
+  <div class="card-grid gifts-grid">
+    {# ПОДАРОК 1 #}
+    <section class="card">
+      <div class="card-header">
+        <div class="gift-id">Подарок #1</div>
+        <div class="tag">TARGET: DOUBLE U DOUBLE U</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Прогресс нахождения подарка</span>
+          <span id="gift1-percent">{{ gift1_progress }}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-inner"
+               id="gift1-bar"
+               data-complete="{{ gift1_progress }}"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-section-title">ЭТАП 1 · АДРЕС</div>
+        <div style="margin-bottom:8px;">
+          Его ждали, чтобы собраться вместе. Куда спешил человек на такси,
+          которому адресовывалось видео с приколом-уликой для нуждающихся в деньгах?
+        </div>
+
+        <div id="gift1Stage2"
+             class="{% if not gift1_stage1 and not gift1_done %}hidden{% endif %}">
+          <div class="card-section-title" style="margin-top:10px;">
+            ЭТАП 2 · ПАРОЛЬ ОТ БД
+          </div>
+          <div>
+            Сева, поздравляю! Теперь нужно вспомнить
+            <strong>пароль от первой БД</strong>, что ты мне делал.
+            Вспоминай, развлекайся, я сам заебался искать и не ошибись.
+          </div>
+        </div>
+
+        <div id="gift1Stage3"
+             class="{% if not gift1_stage2 and not gift1_done %}hidden{% endif %}">
+          <div class="card-section-title" style="margin-top:10px;">
+            ЭТАП 3 · VIN ГАЗЕЛИ
+          </div>
+          <div>
+            Введи VIN газели, которая привезла тебя сюда на праздник))))
+          </div>
+        </div>
+
+        <div class="input-row" style="margin-top:10px;">
+          <input type="text"
+                 id="gift1Input"
+                 placeholder="Этап 1: адрес без пробелов"
+                 autocomplete="off">
+          <button id="gift1SubmitBtn"
+                  type="button"
+                  data-step1-url="{% url 'gift1_step1' %}"
+                  data-step2-url="{% url 'gift1_step2' %}"
+                  data-vin-url="{% url 'check_vin' %}">
+            ENTER
+          </button>
+        </div>
+        <div id="gift1Error"
+             style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
+      </div>
+
+      <div id="gift1Final"
+           class="card-hint {% if not gift1_done %}hidden{% endif %}">
+        <strong>ДЕКОДИРОВАНО:</strong><br>
+        <span data-final-text>
+          Дабл ю дабл ю! Подарок лежит, где аптечка в машине, Юля подскажет🎁
+        </span>
+      </div>
+    </section>
+
+    {# ПОДАРОК 2 #}
+    <section class="card">
+      <div class="card-header">
+        <div class="gift-id">Подарок #2</div>
+        <div class="tag">TARGET: DESIGNER</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Прогресс нахождения подарка</span>
+          <span id="gift2-percent">{{ gift2_progress }}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-inner"
+               id="gift2-bar"
+               data-complete="{{ gift2_progress }}"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-section-title">ЭТАП 1 · ЗАПУСК ИГРЫ</div>
+        <div style="margin-bottom:8px;">
+          Подружанька, давай запустим мини-игру 🎮<br>
+          Введи название своей любимой игры (ты в ней
+          проводишь пол-жизни, хех).
+        </div>
+      </div>
+
+      <div id="gift2Stage2"
+           class="{% if not gift2_stage1 and not gift2_done %}hidden{% endif %}">
+        <div class="card-section-title" style="margin-top:10px;">
+          ЭТАП 2 · ИМЯ ДЛЯ РЕБЁНКА
+        </div>
+        <div>
+          В Sims можно придумать абсолютно любое имя ребёнку 👶<br>
+          Введи подходящее эпичное имя, которое тебе бы понравилось.<br>
+        </div>
+      </div>
+
+      <div id="gift2Stage3"
+           class="{% if not gift2_stage2 and not gift2_done %}hidden{% endif %}">
+        <div class="card-section-title" style="margin-top:10px;">
+          ЭТАП 3 · КОНВЕРТ С УЛИКАМИ
+        </div>
+        <div>
+          Детектив успел перехватить конверт с уликами и сфотографировал его содержимое 📸<br>
+          найди фото с конвертом и внимательно посмотри на снимки. На одной из фотографий спрятана фраза-подсказка.<br><br>
+          Введи последнее слово.
+        </div>
+      </div>
+
+      <div class="input-row" style="margin-top:10px;">
+        <input type="text"
+               id="gift2Input"
+               placeholder="Этап 1: любимая игра"
+               autocomplete="off">
+        <button id="gift2SubmitBtn"
+                type="button"
+                data-g2-step1-url="{% url 'gift2_step1' %}"
+                data-g2-step2-url="{% url 'gift2_step2' %}"
+                data-g2-step3-url="{% url 'gift2_step3' %}">
+          ENTER
+        </button>
+      </div>
+      <div id="gift2Error"
+           style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
+
+      <div id="gift2Final"
+           class="card-hint {% if not gift2_done %}hidden{% endif %}">
+        <strong>ДЕКОДИРОВАНО:</strong><br>
+        <span data-final-text>
+          Локация разблокирована! Подарок ждёт тебя там,
+          где ты поливаешь своих зелёных симов — на
+          подоконнике с цветами в Кудрово 🌿🎁
+        </span>
+      </div>
+    </section>
+
+    <!-- Подарок 3 -->
+    <section class="card">
+      <div class="card-header">
+        <div class="gift-id">Подарок #3</div>
+        <div class="tag">TARGET: TBD</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Прогресс нахождения подарка</span>
+          <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-inner"
+               style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-section-title">ЭТАП 1 · КОД</div>
+        <div>
+          Тут можно будет сделать другое кодовое задание, например “детище + steam”.
+        </div>
+      </div>
+    </section>
+
+    <!-- Подарок 4 -->
+    <section class="card">
+      <div class="card-header">
+        <div class="gift-id">Подарок #4</div>
+        <div class="tag">TARGET: TBD</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Прогресс нахождения подарка</span>
+          <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-inner"
+               style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-section-title">ЭТАП 1</div>
+        <div>
+          Любой текстовый квест/подсказка. Сюда потом вставишь своё.
+        </div>
+      </div>
+    </section>
+
+    <!-- Подарок 5 -->
+    <section class="card">
+      <div class="card-header">
+        <div class="gift-id">Подарок #5</div>
+        <div class="tag">TARGET: TBD</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Прогресс нахождения подарка</span>
+          <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-inner"
+               style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-section-title">ЭТАП 1</div>
+        <div>
+          Контент для пятого подарка.
+        </div>
+      </div>
+    </section>
+
+    <!-- Подарок 6 (у тебя помечен как #8) -->
+    <section class="card">
+      <div class="card-header">
+        <div class="gift-id">Подарок #8</div>
+        <div class="tag">TARGET: TBD</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Прогресс нахождения подарка</span>
+          <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-inner"
+               style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card-section-title">ЭТАП 1</div>
+        <div>
+          Контент для восьмого подарка.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div>
+    <button id="decodeTestBtn"
+            class="reset_btn"
+            type="button"
+            data-reset-url="{% url 'reset_vin' %}">
+      ENCODE TEST
+    </button>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'quest/js/dashboard_gifts.js' %}"></script>
+{% endblock %}

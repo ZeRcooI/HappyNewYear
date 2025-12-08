@@ -1,19 +1,6 @@
 // static/quest/js/evidence.js
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Навигация по "папкам" слева
-  (function () {
-    const navItems = document.querySelectorAll('.folder-clickable[data-url]');
-    navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const url = item.dataset.url;
-        if (url) {
-          window.location.href = url;
-        }
-      });
-    });
-  })();
-
   // Галерея (фото + видео)
   (function () {
     const backdrop = document.getElementById('galleryBackdrop');
@@ -25,14 +12,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!backdrop || !imgEl || !videoEl) return;
 
     function openModal(type, src, title) {
-      // Сброс
       imgEl.style.display = 'none';
       videoEl.style.display = 'none';
 
       if (type === 'photo') {
         imgEl.src = src;
         imgEl.style.display = 'block';
-        // стоп видео, если вдруг было открыто до этого
         videoEl.pause();
         videoEl.removeAttribute('src');
       } else if (type === 'video') {
@@ -51,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function closeModal() {
       backdrop.classList.remove('active');
-      // стоп видео при закрытии
       if (videoEl) {
         videoEl.pause();
       }
@@ -78,7 +62,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // ESC для закрытия
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' || e.key === 'Esc') {
         if (backdrop.classList.contains('active')) {

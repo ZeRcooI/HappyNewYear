@@ -1,0 +1,84 @@
+{# templates/quest/base.html #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}HNY PANEL{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'quest/css/hacker.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="screen-noise"></div>
+
+<div class="wrapper">
+  <aside class="sidebar">
+    <div class="sidebar-title">FILE SYSTEM // HNY-28893</div>
+    <ul class="folder-list">
+      <li class="folder-clickable {% if active_section == 'photos' %}active{% endif %}"
+          data-url="{% url 'evidence_photos' %}">
+        <div class="folder-icon"></div>
+        <div class="folder-label">/evidence/photos</div>
+      </li>
+      <li class="folder-clickable {% if active_section == 'files' %}active{% endif %}"
+          data-url="{% url 'evidence_files' %}">
+        <div class="folder-icon"></div>
+        <div class="folder-label">/evidence/files</div>
+      </li>
+      <li class="folder-clickable {% if active_section == 'videos' %}active{% endif %}"
+          data-url="{% url 'evidence_videos' %}">
+        <div class="folder-icon"></div>
+        <div class="folder-label">/evidence/videos</div>
+      </li>
+    </ul>
+
+    <div class="sidebar-title">SYSTEM</div>
+    <ul class="folder-list">
+      <li class="folder-clickable" id="openTrashBtn">
+        <div class="folder-icon folder-trash"></div>
+        <div class="folder-label">Корзина</div>
+      </li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    {% block main %}{% endblock %}
+  </main>
+</div>
+
+{% block modals %}
+  {# модалка корзины по умолчанию #}
+  <div class="modal-backdrop" id="trashModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">TRASH /// DELETED FILE</div>
+        <div class="modal-close" id="trashClose">&times;</div>
+      </div>
+      <div class="modal-body">
+        <div>
+          Для доступа к удалённым файлам введите пароль.<br>
+        </div>
+        <input type="password" id="trashPassword" placeholder="введите пароль">
+        <button type="button"
+                id="trashSubmit"
+                data-open-url="{% url 'open_trash' %}">unlock</button>
+
+        <div class="modal-message" id="trashMessage"></div>
+
+        <div id="trashContent" style="display:none; margin-top:10px;">
+          <div>[SYSTEM] Удалённый файл восстановлен:</div>
+          <div>- Тип: audio/record</div>
+          <div style="margin-top:6px;">
+            <audio id="vinAudio" controls></audio>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+<script src="{% static 'quest/js/common.js' %}"></script>
+<script src="{% static 'quest/js/trash.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

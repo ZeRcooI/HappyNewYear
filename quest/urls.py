@@ -16,4 +16,8 @@ urlpatterns = [
     path('api/check-vin/', views.check_vin, name='check_vin'),
     path('api/open-trash/', views.open_trash, name='open_trash'),
     path('api/reset-vin/', views.reset_vin, name='reset_vin'),
+
+    path('api/gift2/step1/', views.gift2_step1, name='gift2_step1'),
+    path('api/gift2/step2/', views.gift2_step2, name='gift2_step2'),
+    path('api/gift2/step3/', views.gift2_step3, name='gift2_step3'),
 ]
