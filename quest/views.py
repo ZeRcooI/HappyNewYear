@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from .models import EvidenceItem
+from .models import EvidenceItem, TrashMessage
 
 LOGIN_CODE = "fitbud2556"
 GIFT1_STAGE1_CODE = "ГРЕКОВА5"
@@ -246,10 +246,20 @@ def open_trash(request):
     raw_pwd = request.POST.get('password', '') or ''
 
     if normalize_pw(raw_pwd) == normalize_pw(TRASH_PASSWORD):
+        messages = TrashMessage.objects.all()
+        msg_payload = []
+        for m in messages:
+            msg_payload.append({
+                'id': m.id,
+                'speaker': m.speaker,
+                'title': m.title,
+                'audio_url': m.audio.url,
+            })
+
         return JsonResponse({
             'ok': True,
-            'message': 'Удалённый файл восстановлен.',
-            'vin_audio_url': '/static/quest/audio/vin-record.mp3',
+            'message': 'Удалённые записи восстановлены.',
+            'messages': msg_payload,
         })
     return JsonResponse({'ok': False, 'error': 'Неверный пароль'})
 

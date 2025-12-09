@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const submitBtn = document.getElementById('trashSubmit');
   const msg = document.getElementById('trashMessage');
   const content = document.getElementById('trashContent');
-  const audio = document.getElementById('vinAudio');
+  const dialog = document.getElementById('trashDialog');
 
   if (!openBtn || !modal || !submitBtn) return;
 
@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (content) {
       content.style.display = 'none';
+    }
+    if (dialog) {
+      dialog.innerHTML = '';
     }
     if (passInput) passInput.value = '';
     setTimeout(() => passInput && passInput.focus(), 100);
@@ -46,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
       msg.classList.remove('error');
     }
     if (content) content.style.display = 'none';
+    if (dialog) dialog.innerHTML = '';
 
     const password =
       (passInput && passInput.value ? passInput.value : '').trim();
@@ -80,11 +84,37 @@ document.addEventListener('DOMContentLoaded', function () {
           if (msg) {
             msg.textContent = data.message || 'Доступ разрешён.';
           }
-          if (data.vin_audio_url && audio) {
-            audio.src = data.vin_audio_url;
-          }
+
           if (content) {
             content.style.display = 'block';
+          }
+
+          if (dialog && Array.isArray(data.messages)) {
+            data.messages.forEach(m => {
+              const wrap = document.createElement('div');
+              wrap.classList.add('trash-msg');
+              if (m.speaker === 'B') {
+                wrap.classList.add('trash-msg--right');
+              } else {
+                wrap.classList.add('trash-msg--left');
+              }
+
+              const inner = document.createElement('div');
+              inner.classList.add('trash-msg-inner');
+
+              const label = document.createElement('div');
+              label.classList.add('trash-msg-speaker');
+              label.textContent = (m.speaker === 'B' ? 'Собеседник B' : 'Собеседник A');
+
+              const audio = document.createElement('audio');
+              audio.controls = true;
+              audio.src = m.audio_url;
+
+              inner.appendChild(label);
+              inner.appendChild(audio);
+              wrap.appendChild(inner);
+              dialog.appendChild(wrap);
+            });
           }
         } else {
           if (msg) {

@@ -47,7 +47,6 @@
 </div>
 
 {% block modals %}
-  {# модалка корзины по умолчанию #}
   <div class="modal-backdrop" id="trashModal">
     <div class="modal">
       <div class="modal-header">
@@ -58,7 +57,7 @@
         <div>
           Для доступа к удалённым файлам введите пароль.<br>
         </div>
-        <input type="password" id="trashPassword" placeholder="введите пароль">
+        <input type="password" id="trashPassword" placeholder="сделай ставку на луз собственной тимы">
         <button type="button"
                 id="trashSubmit"
                 data-open-url="{% url 'open_trash' %}">unlock</button>
@@ -66,11 +65,10 @@
         <div class="modal-message" id="trashMessage"></div>
 
         <div id="trashContent" style="display:none; margin-top:10px;">
-          <div>[SYSTEM] Удалённый файл восстановлен:</div>
-          <div>- Тип: audio/record</div>
-          <div style="margin-top:6px;">
-            <audio id="vinAudio" controls></audio>
-          </div>
+          <div>[SYSTEM] Удалённые записи восстановлены:</div>
+          <div>- Тип: audio/dialog</div>
+
+          <div id="trashDialog" class="trash-dialog" style="margin-top:6px;"></div>
         </div>
       </div>
     </div>
