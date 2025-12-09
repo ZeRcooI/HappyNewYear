@@ -12,14 +12,20 @@
   </div>
 
   <div class="gallery-grid">
-    <button class="gallery-item"
-            type="button"
-            data-file-url="{% static 'quest/files/Newspaper143.pdf' %}">
-      <div class="gallery-video-thumb">
-        <div class="video-play-icon">📄</div>
-        <div class="video-caption">Newspaper143.pdf</div>
-      </div>
-    </button>
+    {% for item in items %}
+      <button class="gallery-item"
+              type="button"
+              data-file-url="{{ item.file.url }}">
+        <div class="gallery-video-thumb">
+          <div class="video-play-icon">📄</div>
+          <div class="video-caption">
+            {{ item.title }}
+          </div>
+        </div>
+      </button>
+    {% empty %}
+      <p>Пока нет файлов-улик.</p>
+    {% endfor %}
   </div>
 {% endblock %}
 

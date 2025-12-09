@@ -7,31 +7,21 @@
   <div class="main-header">
     <div class="main-title">EVIDENCE /// PHOTOS</div>
     <div class="main-meta">
-      NODE: HNY-28893 · <a href="{% url 'dashboard' %}" class="logout-link">back to panel</a>
+      NODE: {{ node_code }} · <a href="{% url 'dashboard' %}" class="logout-link">back to panel</a>
     </div>
   </div>
 
   <div class="gallery-grid">
-    <button class="gallery-item"
-            data-type="photo"
-            data-full-src="{% static 'quest/images/IMG_5683.PNG' %}"
-            data-title="Фото 1: улики во дворе">
-      <img src="{% static 'quest/images/IMG_5683.PNG' %}" alt="Фото 1">
-    </button>
-
-    <button class="gallery-item"
-            data-type="photo"
-            data-full-src="{% static 'quest/photos/photo2.jpg' %}"
-            data-title="Фото 2: подъезд">
-      <img src="{% static 'quest/photos/photo2.jpg' %}" alt="Фото 2">
-    </button>
-
-    <button class="gallery-item"
-            data-type="photo"
-            data-full-src="{% static 'quest/photos/photo3.jpg' %}"
-            data-title="Фото 3: парковка">
-      <img src="{% static 'quest/photos/photo3.jpg' %}" alt="Фото 3">
-    </button>
+    {% for item in items %}
+      <button class="gallery-item"
+              data-type="photo"
+              data-full-src="{{ item.file.url }}"
+              data-title="{{ item.title }}">
+        <img src="{{ item.file.url }}" alt="{{ item.title }}">
+      </button>
+    {% empty %}
+      <p>Пока нет улик-фотографий.</p>
+    {% endfor %}
   </div>
 {% endblock %}
 

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from .models import EvidenceItem
 
 LOGIN_CODE = "fitbud2556"
 GIFT1_STAGE1_CODE = "ГРЕКОВА5"
@@ -201,8 +202,12 @@ def evidence_photos(request):
     guard = _require_quest_login(request)
     if guard:
         return guard
+
+    items = EvidenceItem.objects.filter(item_type=EvidenceItem.PHOTO)
     return render(request, 'quest/evidence_photos.html', {
         'active_section': 'photos',
+        'items': items,
+        'node_code': 'HNY-28893',
     })
 
 
@@ -210,8 +215,13 @@ def evidence_files(request):
     guard = _require_quest_login(request)
     if guard:
         return guard
+
+    items = EvidenceItem.objects.filter(item_type=EvidenceItem.FILE)
+
     return render(request, 'quest/evidence_files.html', {
         'active_section': 'files',
+        'items': items,
+        'node_code': 'HNY-28893',
     })
 
 
@@ -219,8 +229,12 @@ def evidence_videos(request):
     guard = _require_quest_login(request)
     if guard:
         return guard
+
+    items = EvidenceItem.objects.filter(item_type=EvidenceItem.VIDEO)
     return render(request, 'quest/evidence_videos.html', {
         'active_section': 'videos',
+        'items': items,
+        'node_code': 'HNY-28893',
     })
 
 

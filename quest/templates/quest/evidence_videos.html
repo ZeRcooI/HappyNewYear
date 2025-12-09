@@ -7,40 +7,31 @@
   <div class="main-header">
     <div class="main-title">EVIDENCE /// VIDEOS</div>
     <div class="main-meta">
-      NODE: HNY-28893 · <a href="{% url 'dashboard' %}" class="logout-link">back to panel</a>
+      NODE: {{ node_code }} · <a href="{% url 'dashboard' %}" class="logout-link">back to panel</a>
     </div>
   </div>
 
   <div class="gallery-grid">
-    <button class="gallery-item"
-            data-type="video"
-            data-full-src="{% static 'quest/video/This video is related to the person who owns the gift.mp4' %}"
-            data-title="Видео 1: найденная улика">
-      <video class="gallery-thumb-video"
-             src="{% static 'quest/video/This video is related to the person who owns the gift.mp4' %}"
-             preload="metadata"
-             muted>
-      </video>
-      <div class="gallery-video-overlay">
-        <span class="video-play-icon">▶</span>
-        <span class="video-caption">Видео 1</span>
-      </div>
-    </button>
+    {% for item in items %}
+      <button class="gallery-item"
+              data-type="video"
+              data-full-src="{{ item.file.url }}"
+              data-title="{{ item.title }}">
+        
+        <video class="gallery-thumb-video"
+               src="{{ item.file.url }}"
+               preload="metadata"
+               muted>
+        </video>
 
-    <button class="gallery-item"
-            data-type="video"
-            data-full-src="{% static 'quest/video/clip2.mp4' %}"
-            data-title="Видео 2: парковка">
-      <video class="gallery-thumb-video"
-             src="{% static 'quest/video/clip2.mp4' %}"
-             preload="metadata"
-             muted>
-      </video>
-      <div class="gallery-video-overlay">
-        <span class="video-play-icon">▶</span>
-        <span class="video-caption">Видео 2</span>
-      </div>
-    </button>
+        <div class="gallery-video-overlay">
+          <span class="video-play-icon">▶</span>
+          <span class="video-caption">{{ item.title }}</span>
+        </div>
+      </button>
+    {% empty %}
+      <p>Пока нет видеозаписей.</p>
+    {% endfor %}
   </div>
 {% endblock %}
 

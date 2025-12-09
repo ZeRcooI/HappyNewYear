@@ -1,5 +1,3 @@
-// static/quest/js/files.js
-
 document.addEventListener('DOMContentLoaded', function () {
   const fileModal = document.getElementById('fileModal');
   const fileFrame = document.getElementById('fileFrame');
