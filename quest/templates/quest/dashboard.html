@@ -7,7 +7,7 @@
   <div class="main-header">
     <div class="main-title">NEW YEAR GIFT HACK PANEL</div>
     <div class="main-meta">
-      STATUS: ONLINE · GIFTS: 1 / 8 · USER: FRIEND-ACCESS
+      STATUS: ONLINE · GIFTS · USER: FRIEND-ACCESS
       · <a href="{% url 'logout' %}" class="logout-link">logout</a>
     </div>
   </div>
@@ -169,50 +169,169 @@
     <section class="card">
       <div class="card-header">
         <div class="gift-id">Подарок #3</div>
-        <div class="tag">TARGET: TBD</div>
+        <div class="tag">TARGET: Monro / EasyCode</div>
       </div>
 
       <div class="progress-wrap">
         <div class="progress-label">
           <span>Прогресс нахождения подарка</span>
-          <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+          <span id="gift3-percent">{{ gift3_progress }}%</span>
         </div>
         <div class="progress-bar">
           <div class="progress-inner"
-               style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+               id="gift3-bar"
+               data-complete="{{ gift3_progress }}"></div>
         </div>
       </div>
 
       <div>
-        <div class="card-section-title">ЭТАП 1 · КОД</div>
-        <div>
-          Тут можно будет сделать другое кодовое задание, например “детище + steam”.
+        {# Этап 1 #}
+        <div class="card-section-title">ЭТАП 1 · ПЕРЕЕЗЖАЮЩИЙ СВЕТ</div>
+        <div style="margin-bottom:8px;">
+          У одной знакомой семьи по потолку ездят не только мысли, но и лампы.
+          Они двигаются по рельсам, могут подъехать к разным зонам и остановиться где угодно над столом.
+          <br><br>
+          Введи <strong>число таких ламп</strong>, чтобы система поняла, что ты в курсе, как там устроен свет.
+        </div>
+
+        {# Этап 2 #}
+        <div id="gift3Stage2"
+             class="{% if not gift3_stage1 and not gift3_done %}hidden{% endif %}">
+          <div class="card-section-title" style="margin-top:10px;">
+            ЭТАП 2 · ПАПКА «КОРЗИНА»
+          </div>
+          <div>
+            В системе есть место, куда складывают «якобы удалённые» файлы.
+            Загляни в <strong>корзину</strong> и послушай голосовые: там фрагменты одной истории.
+            <br><br>
+            Напиши <strong>причину одним словом</strong>, из-за которой всё зашло слишком далеко.
+          </div>
+        </div>
+
+        {# Этап 3 #}
+        <div id="gift3Stage3"
+             class="{% if not gift3_stage2 and not gift3_done %}hidden{% endif %}">
+          <div class="card-section-title" style="margin-top:10px;">
+            ЭТАП 3 · УТРЕННЯЯ МАНТРА
+          </div>
+          <div>
+            Финальный кусочек пазла.<br>
+            Впиши фразу, которую каждое утро знает весь отдел найма (да и уже многие другие).
+            Пиши так, как привык сам - система поймёт, если смысл будет верным 😉
+          </div>
+        </div>
+
+        <div class="input-row" style="margin-top:10px;">
+          <input type="text"
+                 id="gift3Input"
+                 placeholder="Этап 1: число ламп"
+                 autocomplete="off">
+          <button id="gift3SubmitBtn"
+                  type="button"
+                  data-g3-step1-url="{% url 'gift3_step1' %}"
+                  data-g3-step2-url="{% url 'gift3_step2' %}"
+                  data-g3-step3-url="{% url 'gift3_step3' %}">
+            ENTER
+          </button>
+        </div>
+        <div id="gift3Error"
+             style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
+
+        <div id="gift3Final"
+             class="card-hint {% if not gift3_done %}hidden{% endif %}">
+          <strong>ДЕКОДИРОВАНО:</strong><br>
+          <span data-final-text>
+            И вам хорошего дня, Валерий! Финальная локация: самое холодное место в доме. Там ждёт 
+            очень узнаваемая коробка для Ники и Валеры. Внутри неё спрятаны сразу два подарка 🎁🎁
+          </span>
         </div>
       </div>
     </section>
 
-    <!-- Подарок 4 -->
+        <!-- Подарок 4 -->
     <section class="card">
       <div class="card-header">
         <div class="gift-id">Подарок #4</div>
-        <div class="tag">TARGET: TBD</div>
+        <div class="tag">TARGET: Rostic's / Borjomi</div>
       </div>
 
       <div class="progress-wrap">
         <div class="progress-label">
           <span>Прогресс нахождения подарка</span>
-          <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+          <span id="gift4-percent">{{ gift4_progress }}%</span>
         </div>
         <div class="progress-bar">
           <div class="progress-inner"
-               style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+               id="gift4-bar"
+               data-complete="{{ gift4_progress }}"></div>
         </div>
       </div>
 
       <div>
-        <div class="card-section-title">ЭТАП 1</div>
-        <div>
-          Любой текстовый квест/подсказка. Сюда потом вставишь своё.
+        {# Этап 1 #}
+        <div class="card-section-title">ЭТАП 1 · ЛЮБИМЫЙ ВИД СПОРТА</div>
+        <div style="margin-bottom:8px;">
+          Представь: у тебя есть ровно один свободный вечер для спорта и только один вариант досуга.
+          Что выберешь, если быть честным с самим собой?
+          <br><br>
+          Введи название <strongтого спорта</strong>, который первым приходит в голову.
+        </div>
+
+        {# Этап 2 #}
+        <div id="gift4Stage2"
+             class="{% if not gift4_stage1 and not gift4_done %}hidden{% endif %}">
+          <div class="card-section-title" style="margin-top:10px;">
+            ЭТАП 2 · ТЕСТ И КОД ДОМОФОНА
+          </div>
+          <div>
+            Для перехода дальше нужно пройти короткий тест из пяти вопросов.
+            <br><br>
+            <button type="button" id="gift4QuizOpenBtn">
+              запустить
+            </button>
+            <div style="font-size:11px; opacity:0.85; margin-top:4px;">
+              После прохождения теста введи код домофона в открывшемся окне.
+            </div>
+          </div>
+        </div>
+
+        {# Этап 3 #}
+        <div id="gift4Stage3"
+             class="{% if not gift4_stage2 and not gift4_done %}hidden{% endif %}">
+          <div class="card-section-title" style="margin-top:10px;">
+            ЭТАП 3 · ГОРОД СИЛЫ
+          </div>
+          <div>
+            Финальный вопрос. Система просит назвать город, который для тебя:
+            <br>— родина и точка старта,
+            <br>— гора, моща и центр мира,
+            <br>— место, где воздух официально заряжен свободой.
+            <br><br>
+            Напиши его название <strong>КАПСОМ</strong>.
+          </div>
+        </div>
+
+        <div class="input-row" style="margin-top:10px;">
+          <input type="text"
+                 id="gift4Input"
+                 placeholder="Этап 1: любимый вид спорта"
+                 autocomplete="off">
+          <button id="gift4SubmitBtn"
+                  type="button"
+                  data-g4-step1-url="{% url 'gift4_step1' %}"
+                  data-g4-step3-url="{% url 'gift4_step3' %}">
+            ENTER
+          </button>
+        </div>
+        <div id="gift4Error"
+             style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
+
+        <div id="gift4Final"
+             class="card-hint {% if not gift4_done %}hidden{% endif %}">
+          <strong>ДЕКОДИРОВАНО:</strong><br>
+          <span data-final-text>
+            Протокол принят. Финальная локация зашифрована как модуль распределения корреспонденции в твоём подъезде. Ключ от нужного сектора всегда есть на связке. Внутри ячейки тебя ждут сразу два подарка 🎁🎁
+          </span>
         </div>
       </div>
     </section>
@@ -243,10 +362,10 @@
       </div>
     </section>
 
-    <!-- Подарок 6 (у тебя помечен как #8) -->
+    <!-- Подарок 6 -->
     <section class="card">
       <div class="card-header">
-        <div class="gift-id">Подарок #8</div>
+        <div class="gift-id">Подарок #6</div>
         <div class="tag">TARGET: TBD</div>
       </div>
 
@@ -277,6 +396,128 @@
             data-reset-url="{% url 'reset_vin' %}">
       ENCODE TEST
     </button>
+  </div>
+{% endblock %}
+
+{% block modals %}
+  {{ block.super }}
+  <div class="modal-backdrop" id="gift4QuizModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">GIFT #4 /// QUIZ & DOOR CODE</div>
+        <div class="modal-close" id="gift4QuizClose">&times;</div>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:10px; font-size:12px;">
+          Эти ситуацию уже как-будто бы были....
+        </div>
+
+        <!-- Вопрос 1 -->
+        <div class="gift4-question">
+          <div class="gift4-question-text">
+            1. Что нужно сделать при первой встрече, если видишь человека?
+          </div>
+          <div class="gift4-options">
+            <div>1) Сказать «привет, как дела?»</div>
+            <div>2) Похвалить обувь</div>
+            <div>3) Пожелать хорошего настроения</div>
+            <div>4) Выбить телефон из рук</div>
+            </br>
+          </div>
+        </div>
+
+        <!-- Вопрос 2 -->
+        <div class="gift4-question">
+          <div class="gift4-question-text">
+            2. Как лучше всего назвать должность, если ты самый трендовый тип в компании?
+          </div>
+          <div class="gift4-options">
+            <div>1) Главный специалист по важности</div>
+            <div>2) Директор по хайпу</div>
+            <div>3) Старший менеджер мем-отдела</div>
+            <div>4) Куратор корпоративных вибраций</div>
+            </br>
+          </div>
+        </div>
+
+        <!-- Вопрос 3 -->
+        <div class="gift4-question">
+          <div class="gift4-question-text">
+            3. Как можно назвать киберспортсмена Артёма Груздева?
+          </div>
+          <div class="gift4-options">
+            <div>1) Киберспортяга Грэндмастер</div>
+            <div>2) Мистер Аимбот</div>
+            <div>3) Профессор Кроссфайра</div>
+            <div>4) Мой слоняра</div>
+            </br>
+          </div>
+        </div>
+
+        <!-- Вопрос 4 -->
+        <div class="gift4-question">
+          <div class="gift4-question-text">
+            4. Если прийти в чат к Мише, то с каким вопросом бы ты пришёл?
+          </div>
+          <div class="gift4-options">
+            <div>1) Миша, привет! Что по погоде?</div>
+            <div>2) Миша, привет! Хочу уточнить по рефералке</div>
+            <div>3) Скинь рецепт тех сырников</div>
+            <div>4) Куда пропала моя мотивация?</div>
+            </br>
+          </div>
+        </div>
+
+        <!-- Вопрос 5 -->
+        <div class="gift4-question">
+          <div class="gift4-question-text">
+            5. Если ты варишь макароны, то чем мешать воду?
+          </div>
+          <div class="gift4-options">
+            <div>1) Макаронами</div>
+            <div>2) Ледорубом</div>
+            <div>3) Пакетом гречки</div>
+            <div>4) Дилдо из Икеи</div>
+            </br>
+          </div>
+        </div>
+
+        <div class="gift4-code-block" style="margin-top:10px;">
+          <div style="font-size:11px; margin-bottom:4px;">КОД:</div>
+          <div id="gift4CodeDisplay"
+               style="font-family:'Fira Code', monospace; font-size:18px; letter-spacing:0.3em;">
+            _ _ _ _ _
+          </div>
+
+          <div class="gift4-keypad" style="margin-top:8px;">
+            <div class="gift4-keypad-grid">
+              <button type="button" class="gift4-keypad-btn" data-digit="1">1</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="2">2</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="3">3</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="4">4</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="5">5</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="6">6</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="7">7</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="8">8</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="9">9</button>
+              <button type="button" class="gift4-keypad-btn" data-digit="0">0</button>
+            </div>
+
+            <div style="margin-top:8px; display:flex; gap:8px;">
+              <button type="button" id="gift4CodeClearBtn">стереть</button>
+              <button type="button"
+                      id="gift4CodeOkBtn"
+                      data-g4-step2-url="{% url 'gift4_step2' %}">
+                unlock
+              </button>
+            </div>
+          </div>
+
+          <div id="gift4QuizMessage"
+               style="margin-top:6px; min-height:16px; font-size:11px;"></div>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}
 

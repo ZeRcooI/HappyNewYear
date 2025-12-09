@@ -1,58 +1,3 @@
-body {
-  margin: 0;
-  padding: 0;
-  background: radial-gradient(circle at top, #050810 0, #010308 55%, #000000 100%);
-  color: #33ff66;
-  font-family: "Fira Code", "Consolas", monospace;
-  text-shadow: 0 0 4px rgba(51, 255, 102, 0.8);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-a {
-  color: #33ff66;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-.hidden {
-  display: none !important;
-}
-
-@keyframes scanline {
-  0% {
-    opacity: 0.15;
-  }
-
-  50% {
-    opacity: 0.3;
-  }
-
-  100% {
-    opacity: 0.15;
-  }
-}
-
-.screen-noise {
-  position: fixed;
-  pointer-events: none;
-  inset: 0;
-  background-image: repeating-linear-gradient(to bottom,
-      rgba(0, 0, 0, 0.3),
-      rgba(0, 0, 0, 0.3) 1px,
-      transparent 1px,
-      transparent 3px);
-  mix-blend-mode: soft-light;
-  opacity: 0.2;
-  animation: scanline 3s linear infinite;
-  z-index: 1;
-}
-
 .login-wrapper {
   min-height: 100vh;
   display: flex;
@@ -373,6 +318,7 @@ a:hover {
   margin-bottom: 10px;
 }
 
+/* модалки, которые используются в панели */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -407,7 +353,6 @@ a:hover {
   font-size: 12px;
   overflow-y: auto;
 }
-
 
 .modal-header {
   display: flex;
@@ -477,157 +422,6 @@ a:hover {
   align-items: stretch;
 }
 
-/* ---------- ГАЛЕРЕЯ УЛИК ---------- */
-
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-  margin-top: 8px;
-}
-
-.gallery-item {
-  padding: 6px;
-  border-radius: 8px;
-  border: 1px solid rgba(51, 255, 102, 0.5);
-  background: radial-gradient(circle at top left,
-      rgba(0, 40, 20, 0.6),
-      rgba(0, 0, 0, 0.9));
-  cursor: pointer;
-  display: block;
-}
-
-.gallery-item img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
-}
-
-.gallery-item:hover {
-  box-shadow: 0 0 12px rgba(51, 255, 102, 0.5);
-}
-
-/* заглушка для видео-тайла */
-.gallery-video-thumb {
-  border-radius: 4px;
-  border: 1px dashed rgba(51, 255, 102, 0.7);
-  padding: 18px 10px;
-  text-align: center;
-  font-size: 12px;
-  position: relative;
-}
-
-.video-play-icon {
-  font-size: 20px;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.video-caption {
-  color: #fff;
-  opacity: 0.85;
-}
-
-/* модалка для просмотра фото/видео */
-.gallery-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.gallery-backdrop.active {
-  display: flex;
-}
-
-.gallery-modal {
-  max-width: 90vw;
-  max-height: 90vh;
-  border-radius: 10px;
-  border: 1px solid #33ff66;
-  background: rgba(0, 0, 0, 0.96);
-  padding: 10px 12px 12px;
-  box-shadow: 0 0 20px rgba(51, 255, 102, 0.5);
-  display: flex;
-  flex-direction: column;
-}
-
-.gallery-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  margin-bottom: 6px;
-}
-
-.gallery-modal-title {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  opacity: 0.9;
-}
-
-.gallery-modal-close {
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-}
-
-.gallery-modal-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.gallery-modal-body img,
-.gallery-modal-body video {
-  max-width: 86vw;
-  max-height: 78vh;
-  border-radius: 6px;
-}
-
-
-.gallery-item {
-  position: relative;
-  padding: 0;
-  overflow: hidden;
-}
-
-/* превью-видео как картинка */
-.gallery-thumb-video {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  pointer-events: none;
-  /* чтобы клик ловила кнопка, а не video */
-}
-
-/* слой с play-иконкой и подписью */
-.gallery-video-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.2), transparent 60%);
-}
-
-.video-play-icon {
-  font-size: 24px;
-  margin-bottom: 4px;
-}
-
-.video-caption {
-  font-size: 12px;
-  opacity: 0.9;
-}
-
 .reset_btn {
   display: block;
   margin: 0 auto;
@@ -639,7 +433,6 @@ a:hover {
   color: #fff;
   font-weight: 900;
 }
-
 
 .trash-dialog {
   display: flex;
@@ -681,18 +474,39 @@ a:hover {
   width: 100%;
 }
 
+.gift4-keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
 
-1. чатик создадим,
-кто что будет кушать,
-не первы же год НГ празднуем 2. давай акккуртанее,
-как прилетите,
-хоть напиши 3. как будешь заселяся,
-позвони на номер 4. мы приехали напротив возле кориченевых домов 5. валер,
-подскажи как человечку отказать 6. я тебя не тревожу,
-это очень сильное исключение 7. последние 2 цифры в паспорте,
-количество людей живущих в нашей стране 8. не благодарный,
-пошёл на балкон про шершня 9. у тебя есть какие-то его данные 10. Михаил,
-дело не в то что ему 17,
-а в том что он нас обманул 11. ты к нему выйди и уточни как он тебя понял 12. выебываться можно сам косячит 13. ну сори,
-он самозанятый,
-не получится спрятаться 14. не надо дядя 15.ахахаха
+.gift4-keypad-btn {
+  border-radius: 4px;
+  border: 1px solid rgba(51, 255, 102, 0.7);
+  background: rgba(0, 0, 0, 0.7);
+  color: #33ff66;
+  padding: 4px 0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.gift4-keypad-btn:hover {
+  background: #33ff66;
+  color: #000;
+  box-shadow: 0 0 8px rgba(51, 255, 102, 0.6);
+}
+
+#gift4QuizOpenBtn {
+  border-radius: 5px;
+  border: 1px solid rgba(51, 255, 102, 0.8);
+  background: rgba(0, 0, 0, 0.7);
+  color: #33ff66;
+  padding: 6px 10px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 10px;
+}

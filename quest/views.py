@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -77,6 +78,41 @@ def _is_photo_choice_ok(value: str) -> bool:
     return code in {"ПОЧЕШЕМ"}
 
 
+def _is_gift3_step1_ok(value: str) -> bool:
+    if not value:
+        return False
+    v = value.strip().lower()
+
+    if v == '3':
+        return True
+
+    letters = re.sub(r'[^а-яёa-z]', '', v)
+    return letters in {'три', 'three'}
+
+
+def _normalize_rus_word(s: str) -> str:
+    s = s or ''
+    s = re.sub(r'[^А-Яа-яЁё]', '', s)
+    return s.upper()
+
+
+def _is_gift3_step2_ok(value: str) -> bool:
+    norm = _normalize_rus_word(value)
+    return norm.startswith('ОБМАН')
+
+
+def _normalize_phrase(s: str) -> str:
+    s = s or ''
+    s = s.lower()
+    s = re.sub(r'[^a-zа-яё0-9\s]', ' ', s)
+    s = re.sub(r'\s+', ' ', s).strip()
+    return s
+
+
+def _is_gift3_step3_ok(value: str) -> bool:
+    return _normalize_phrase(value) == 'привет хорошего дня'
+
+
 def _require_quest_login(request):
     if not request.session.get('quest_logged_in'):
         return redirect('login')
@@ -103,6 +139,8 @@ def logout_view(request):
         'quest_logged_in',
         'gift1_stage1', 'gift1_stage2', 'gift1_done',
         'gift2_stage1', 'gift2_stage2', 'gift2_done',
+        'gift3_stage1', 'gift3_stage2', 'gift3_done',
+        'gift4_stage1', 'gift4_stage2', 'gift4_done',
     ]:
         request.session.pop(key, None)
     return redirect('login')
@@ -153,6 +191,7 @@ def dashboard(request):
     if guard:
         return guard
 
+    # --- Подарок 1 ---
     gift1_done = request.session.get('gift1_done', False)
     gift1_stage1 = request.session.get('gift1_stage1', False)
     gift1_stage2 = request.session.get('gift1_stage2', False)
@@ -166,6 +205,7 @@ def dashboard(request):
     else:
         gift1_progress = 0
 
+    # --- Подарок 2 ---
     gift2_done = request.session.get('gift2_done', False)
     gift2_stage1 = request.session.get('gift2_stage1', False)
     gift2_stage2 = request.session.get('gift2_stage2', False)
@@ -179,6 +219,34 @@ def dashboard(request):
     else:
         gift2_progress = 0
 
+    # --- Подарок 3 ---
+    gift3_done = request.session.get('gift3_done', False)
+    gift3_stage1 = request.session.get('gift3_stage1', False)
+    gift3_stage2 = request.session.get('gift3_stage2', False)
+
+    if gift3_done:
+        gift3_progress = 100
+    elif gift3_stage2:
+        gift3_progress = 66
+    elif gift3_stage1:
+        gift3_progress = 33
+    else:
+        gift3_progress = 0
+
+    # --- Подарок 4 ---
+    gift4_done = request.session.get('gift4_done', False)
+    gift4_stage1 = request.session.get('gift4_stage1', False)
+    gift4_stage2 = request.session.get('gift4_stage2', False)
+
+    if gift4_done:
+        gift4_progress = 100
+    elif gift4_stage2:
+        gift4_progress = 66
+    elif gift4_stage1:
+        gift4_progress = 33
+    else:
+        gift4_progress = 0
+
     context = {
         'gift1_done': gift1_done,
         'gift1_stage1': gift1_stage1,
@@ -189,6 +257,16 @@ def dashboard(request):
         'gift2_stage1': gift2_stage1,
         'gift2_stage2': gift2_stage2,
         'gift2_progress': gift2_progress,
+
+        'gift3_done': gift3_done,
+        'gift3_stage1': gift3_stage1,
+        'gift3_stage2': gift3_stage2,
+        'gift3_progress': gift3_progress,
+
+        'gift4_done': gift4_done,
+        'gift4_stage1': gift4_stage1,
+        'gift4_stage2': gift4_stage2,
+        'gift4_progress': gift4_progress,
 
         'vin_code_len': len(VIN_CODE),
         'vin_code': VIN_CODE,
@@ -315,3 +393,115 @@ def gift2_step3(request):
             ),
         })
     return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+@require_POST
+def gift3_step1(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_gift3_step1_ok(answer):
+        request.session['gift3_stage1'] = True
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+@require_POST
+def gift3_step2(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_gift3_step2_ok(answer):
+        request.session['gift3_stage2'] = True
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+@require_POST
+def gift3_step3(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_gift3_step3_ok(answer):
+        request.session['gift3_done'] = True
+        return JsonResponse({
+            'ok': True,
+            'final_text': (
+                "И вам хорошего дня, Валерий! Финальная локация: самое холодное место в доме. Там ждёт "
+                " очень узнаваемая коробка для Ники и Валеры. Внутри неё спрятаны сразу два подарка 🎁🎁"
+            ),
+        })
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+def _is_gift4_step1_ok(value: str) -> bool:
+    code = _normalize_code(value or '')
+    return code in {"ТЕННИС", "TENNIS"}
+
+
+def _is_gift4_step2_ok(value: str) -> bool:
+    digits = re.sub(r'\D', '', value or '')
+    return digits == '42421'
+
+
+def _is_gift4_step3_ok(value: str) -> bool:
+    s = value or ''
+
+    if _normalize_rus_word(s) == 'СТАВРОПОЛЬ':
+        return True
+
+    code = _normalize_code(s)
+    if code in {'STAVROPOL', 'СТАВРОПОЛЬ'}:
+        return True
+
+    return False
+
+
+@require_POST
+def gift4_step1(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_gift4_step1_ok(answer):
+        request.session['gift4_stage1'] = True
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+@require_POST
+def gift4_step2(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    code = request.POST.get('code', '') or ''
+    if _is_gift4_step2_ok(code):
+        request.session['gift4_stage2'] = True
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False, 'error': 'wrong_code'})
+
+
+@require_POST
+def gift4_step3(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_gift4_step3_ok(answer):
+        request.session['gift4_done'] = True
+        return JsonResponse({
+            'ok': True,
+            'final_text': (
+                "Протокол принят. Финальная локация зашифрована как модуль "
+                "распределения корреспонденции в твоём подъезде — тот самый "
+                "металлический ящик, куда обычно падают письма и счета. "
+                "Ключ от нужного сектора на руках у Юли. Внутри ячейки тебя "
+                "ждут сразу два подарка 🎁🎁"
+            ),
+        })
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+

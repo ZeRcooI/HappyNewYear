@@ -1,0 +1,85 @@
+body {
+  margin: 0;
+  padding: 0;
+
+  background:
+    /* 12 разных "слоёв шума" */
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='220' height='140'>\
+<text x='10' y='20' fill='%23003300'>01001101011010110010</text>\
+<text x='60' y='45' fill='%23004400'>11001011001011001101</text>\
+<text x='30' y='80' fill='%23002200'>10110100110110011010</text>\
+</svg>"),
+
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='260' height='160'>\
+<text x='5' y='30' fill='%23003300'>11011001001101100101</text>\
+<text x='80' y='70' fill='%23004400'>01101001100101101001</text>\
+</svg>"),
+
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>\
+<text x='20' y='50' fill='%23003300'>01010110011001101011</text>\
+<text x='100' y='120' fill='%23004400'>11010011010100110101</text>\
+</svg>"),
+
+    radial-gradient(circle at top, #050810 0, #010308 55%, #000000 100%);
+
+  background-size:
+    220px 140px,
+    260px 160px,
+    200px 200px,
+    cover;
+
+  background-repeat: repeat, repeat, repeat, no-repeat;
+
+  color: #33ff66;
+  font-family: "Fira Code", Consolas, monospace;
+  text-shadow: 0 0 4px rgba(51, 255, 102, 0.8);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: #33ff66;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes scanline {
+  0% {
+    opacity: 0.15;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.screen-noise {
+  position: fixed;
+  pointer-events: none;
+  inset: 0;
+  background-image: repeating-linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.3),
+      rgba(0, 0, 0, 0.3) 1px,
+      transparent 1px,
+      transparent 3px);
+  mix-blend-mode: soft-light;
+  opacity: 0.2;
+  animation: scanline 3s linear infinite;
+  z-index: 1;
+}
