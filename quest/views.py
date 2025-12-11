@@ -247,6 +247,20 @@ def dashboard(request):
     else:
         gift4_progress = 0
 
+    # --- Подарок 5 ---
+    gift5_done = request.session.get('gift5_done', False)
+    gift5_stage1 = request.session.get('gift5_stage1', False)
+    gift5_stage2 = request.session.get('gift5_stage2', False)
+
+    if gift5_done:
+        gift5_progress = 100
+    elif gift5_stage2:
+        gift5_progress = 66
+    elif gift5_stage1:
+        gift5_progress = 33
+    else:
+        gift5_progress = 0
+
     context = {
         'gift1_done': gift1_done,
         'gift1_stage1': gift1_stage1,
@@ -267,6 +281,11 @@ def dashboard(request):
         'gift4_stage1': gift4_stage1,
         'gift4_stage2': gift4_stage2,
         'gift4_progress': gift4_progress,
+
+        'gift5_done': gift5_done,
+        'gift5_stage1': gift5_stage1,
+        'gift5_stage2': gift5_stage2,
+        'gift5_progress': gift5_progress,
 
         'vin_code_len': len(VIN_CODE),
         'vin_code': VIN_CODE,
@@ -496,7 +515,7 @@ def gift4_step3(request):
             'ok': True,
             'final_text': (
                 "Протокол принят. Финальная локация зашифрована как модуль "
-                "распределения корреспонденции в твоём подъезде — тот самый "
+                "распределения корреспонденции в твоём подъезде - тот самый "
                 "металлический ящик, куда обычно падают письма и счета. "
                 "Ключ от нужного сектора на руках у Юли. Внутри ячейки тебя "
                 "ждут сразу два подарка 🎁🎁"
@@ -504,4 +523,57 @@ def gift4_step3(request):
         })
     return JsonResponse({'ok': False, 'error': 'wrong_answer'})
 
+
+def _is_gift5_step1_ok(value: str) -> bool:
+    code = _normalize_code(value or '')
+    return code == "SLAY"
+
+
+def _is_gift5_step2_ok(value: str) -> bool:
+    code = _normalize_code(value or '')
+    return code in {
+        "СИРЕНА",
+        "СИГНАЛИЗАЦИЯ",
+        "СИГНАЛКА",
+        "SIREN",
+        "ALARM",
+    }
+
+
+@require_POST
+def gift5_step1(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_gift5_step1_ok(answer):
+        request.session['gift5_stage1'] = True
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+@require_POST
+def gift5_step2(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+    if _is_gift5_step2_ok(answer):
+        request.session['gift5_stage2'] = True
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
+
+
+@require_POST
+def gift5_step3(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    request.session['gift5_done'] = True
+    return JsonResponse({
+        'ok': True,
+        'final_text': (
+            "Final hint activated. The last codes have been sitting for a long time exactly where Artemi once asked me to change the recipient before sending something. Think of that place - the gift is waiting right there 😉"
+        ),
+    })
 

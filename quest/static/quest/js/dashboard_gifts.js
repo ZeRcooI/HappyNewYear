@@ -807,7 +807,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      finished = True;
+      finished = true;
       if (input) input.value = '';
       if (err) err.textContent = 'Подарок #4 расшифрован 🎁';
       updatePlaceholder();
@@ -1036,6 +1036,245 @@ document.addEventListener('DOMContentLoaded', function () {
       if (quizMsg) quizMsg.textContent = '';
       codeDigits = [];
       updateCodeDisplay();
+
+      updatePlaceholder();
+    });
+  })();
+
+  // ---------- ПОДАРОК #5: ПРИВЕТСТВИЕ, СИРЕНА И КОДЫ ----------
+  (function () {
+    const bar = document.getElementById('gift5-bar');
+    const percentLabel = document.getElementById('gift5-percent');
+    const input = document.getElementById('gift5Input');
+    const btn = document.getElementById('gift5SubmitBtn');
+    const err = document.getElementById('gift5Error');
+    const stage1Block = document.getElementById('gift5Stage1');
+    const stage2Block = document.getElementById('gift5Stage2');
+    const stage3Block = document.getElementById('gift5Stage3');
+    const finalBlock = document.getElementById('gift5Final');
+
+    if (!bar || !btn || !input) return;
+
+    let stage = 1;
+    let finished = false;
+
+    // Init progress from server
+    const complete = parseInt(bar.dataset.complete || '0', 10);
+    bar.style.width = complete + '%';
+    if (percentLabel) {
+      percentLabel.textContent = complete + '%';
+    }
+
+    if (complete >= 100) {
+      stage = 3;
+      finished = true;
+      if (stage2Block) stage2Block.classList.remove('hidden');
+      if (stage3Block) stage3Block.classList.remove('hidden');
+      if (finalBlock) finalBlock.classList.remove('hidden');
+    } else if (complete >= 66) {
+      stage = 3;
+      if (stage2Block) stage2Block.classList.remove('hidden');
+      if (stage3Block) stage3Block.classList.remove('hidden');
+    } else if (complete >= 33) {
+      stage = 2;
+      if (stage2Block) stage2Block.classList.remove('hidden');
+    }
+
+    function getFinalTextFromDom() {
+      if (!finalBlock) return '';
+      const textEl = finalBlock.querySelector('[data-final-text]');
+      return textEl ? textEl.textContent.trim() : '';
+    }
+
+    function updatePlaceholder() {
+      if (!input) return;
+
+      if (finished) {
+        const finalText = getFinalTextFromDom();
+        input.placeholder = finalText || 'Gift #5 decoded 🎁';
+      } else if (stage === 1) {
+        input.placeholder = 'Stage 1: greeting word';
+      } else if (stage === 2) {
+        input.placeholder = 'Stage 2: annoying thing';
+      } else {
+        input.placeholder = 'Stage 3: press ENTER for the final hint';
+      }
+    }
+
+    function applyFinishedState() {
+      if (!input || !btn) return;
+      if (finished) {
+        input.value = '';
+        input.disabled = true;
+        btn.disabled = true;
+      } else {
+        input.disabled = false;
+        btn.disabled = false;
+      }
+      updatePlaceholder();
+    }
+
+    function setStage1Done() {
+      bar.style.width = '33%';
+      if (percentLabel) percentLabel.textContent = '33%';
+      stage = 2;
+
+      if (stage2Block) stage2Block.classList.remove('hidden');
+      if (input) input.value = '';
+      if (err) {
+        err.textContent =
+          'Stage 1 complete! Now think about that annoying sound from Voronezh.';
+      }
+      updatePlaceholder();
+    }
+
+    function setStage2Done() {
+      bar.style.width = '66%';
+      if (percentLabel) percentLabel.textContent = '66%';
+      stage = 3;
+
+      if (stage3Block) stage3Block.classList.remove('hidden');
+      if (input) input.value = '';
+      if (err) {
+        err.textContent =
+          'Stage 2 complete! Time to get the final hint about the codes.';
+      }
+      updatePlaceholder();
+    }
+
+    function setFinalDone(finalTextFromServer) {
+      bar.style.width = '100%';
+      if (percentLabel) percentLabel.textContent = '100%';
+
+      if (stage2Block) stage2Block.classList.remove('hidden');
+      if (stage3Block) stage3Block.classList.remove('hidden');
+
+      let finalText = finalTextFromServer || '';
+
+      if (finalBlock) {
+        finalBlock.classList.remove('hidden');
+        const textEl = finalBlock.querySelector('[data-final-text]');
+        if (textEl && finalText) {
+          textEl.textContent = finalText;
+        } else if (!finalText && textEl) {
+          finalText = textEl.textContent.trim();
+        }
+      }
+
+      finished = true;
+      if (input) input.value = '';
+      if (err) err.textContent = 'Gift #5 decoded 🎁';
+      updatePlaceholder();
+      applyFinishedState();
+    }
+
+    updatePlaceholder();
+    applyFinishedState();
+
+    const step1Url = btn.dataset.g5Step1Url || '';
+    const step2Url = btn.dataset.g5Step2Url || '';
+    const step3Url = btn.dataset.g5Step3Url || '';
+
+    btn.addEventListener('click', () => {
+      if (finished) return;
+      if (!err) return;
+
+      const value = (input && input.value ? input.value : '').trim();
+
+      err.textContent = '';
+
+      let url = '';
+      let payload;
+
+      if (stage === 1) {
+        if (!value) {
+          err.textContent = 'You need to enter the greeting word.';
+          return;
+        }
+        url = step1Url;
+        payload = new URLSearchParams({ answer: value });
+      } else if (stage === 2) {
+        if (!value) {
+          err.textContent = 'You need to enter the name of the annoying thing.';
+          return;
+        }
+        url = step2Url;
+        payload = new URLSearchParams({ answer: value });
+      } else {
+        // Stage 3: just request the final hint, no answer needed
+        url = step3Url;
+        payload = new URLSearchParams({});
+      }
+
+      if (!url) {
+        err.textContent = 'Answer check URL is not configured.';
+        return;
+      }
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken || '',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: payload,
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!data || !data.ok) {
+            if (stage === 1) {
+              err.textContent =
+                'Not that word. Think of your favourite trendy greeting.';
+            } else if (stage === 2) {
+              err.textContent =
+                'Nope. Think about the sound that drove you mad in Voronezh and lives on Julia’s keys.';
+            } else {
+              err.textContent = 'Something went wrong. Try again.';
+            }
+            return;
+          }
+
+          if (stage === 1) {
+            setStage1Done();
+          } else if (stage === 2) {
+            setStage2Done();
+          } else {
+            setFinalDone(data.final_text || '');
+          }
+        })
+        .catch(() => {
+          err.textContent = 'System error. Please try again a bit later.';
+        });
+    });
+
+    if (input) {
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          btn.click();
+        }
+      });
+    }
+
+    // Reaction to global RESET (if needed)
+    document.addEventListener('giftsReset', () => {
+      stage = 1;
+      finished = false;
+
+      if (stage2Block) stage2Block.classList.add('hidden');
+      if (stage3Block) stage3Block.classList.add('hidden');
+      if (finalBlock) finalBlock.classList.add('hidden');
+
+      bar.style.width = '0%';
+      if (percentLabel) percentLabel.textContent = '0%';
+
+      if (input) {
+        input.disabled = false;
+        input.value = '';
+      }
+      if (btn) btn.disabled = false;
+      if (err) err.textContent = '';
 
       updatePlaceholder();
     });

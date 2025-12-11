@@ -159,7 +159,7 @@
         <strong>ДЕКОДИРОВАНО:</strong><br>
         <span data-final-text>
           Локация разблокирована! Подарок ждёт тебя там,
-          где ты поливаешь своих зелёных симов — на
+          где ты поливаешь своих зелёных симов - на
           подоконнике с цветами в Кудрово 🌿🎁
         </span>
       </div>
@@ -248,7 +248,7 @@
       </div>
     </section>
 
-        <!-- Подарок 4 -->
+    <!-- Подарок 4 -->
     <section class="card">
       <div class="card-header">
         <div class="gift-id">Подарок #4</div>
@@ -303,9 +303,9 @@
           </div>
           <div>
             Финальный вопрос. Система просит назвать город, который для тебя:
-            <br>— родина и точка старта,
-            <br>— гора, моща и центр мира,
-            <br>— место, где воздух официально заряжен свободой.
+            <br>- родина и точка старта,
+            <br>- гора, моща и центр мира,
+            <br>- место, где воздух официально заряжен свободой.
             <br><br>
             Напиши его название <strong>КАПСОМ</strong>.
           </div>
@@ -339,25 +339,93 @@
     <!-- Подарок 5 -->
     <section class="card">
       <div class="card-header">
-        <div class="gift-id">Подарок #5</div>
-        <div class="tag">TARGET: TBD</div>
+        <div class="gift-id">Gift #5</div>
+        <div class="tag">TARGET: UK CREW</div>
       </div>
 
       <div class="progress-wrap">
         <div class="progress-label">
-          <span>Прогресс нахождения подарка</span>
-          <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+          <span>Gift progress</span>
+          <span id="gift5-percent">{{ gift5_progress }}%</span>
         </div>
         <div class="progress-bar">
           <div class="progress-inner"
-               style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+              id="gift5-bar"
+              data-complete="{{ gift5_progress }}"></div>
         </div>
       </div>
 
-      <div>
-        <div class="card-section-title">ЭТАП 1</div>
-        <div>
-          Контент для пятого подарка.
+      <div class="card-body">
+        {# Stage 1 #}
+        <div id="gift5Stage1"
+            class="{% if gift5_done %}hidden{% endif %}">
+          <div class="card-section-title">
+            STAGE 1 · GREETING WORD
+          </div>
+          <div>
+            To get past this point, you need to enter a
+            <strong>word of kindness - a greeting</strong>.
+            The same trendy word you sometimes use with each other,
+            that works as both “hi” and a compliment 😉
+          </div>
+        </div>
+
+        {# Stage 2 #}
+        <div id="gift5Stage2"
+            class="{% if not gift5_stage1 and not gift5_done %}hidden{% endif %}">
+          <div class="card-section-title" style="margin-top:10px;">
+            STAGE 2 · THE ANNOYING SOUND
+          </div>
+          <div>
+            Think back to Voronezh - what kept
+            <strong>annoying you again and again</strong>?
+            The sound you heard constantly.  
+            And yes… the same “little friend”
+            still lives on Julia’s keychain.
+            <br><br>
+            Type what that thing is (one word).
+          </div>
+        </div>
+
+        {# Stage 3 #}
+        <div id="gift5Stage3"
+            class="{% if not gift5_stage2 and not gift5_done %}hidden{% endif %}">
+          <div class="card-section-title" style="margin-top:10px;">
+            STAGE 3 · WHERE THE CODES ARE
+          </div>
+          <div>
+            Final step. No tricky answers:
+            <br>
+            the system will simply remind you where
+            <strong>the last codes have been waiting for ages</strong>.
+            <br><br>
+            Press ENTER to reveal the final hint.
+          </div>
+        </div>
+
+        <div class="input-row" style="margin-top:10px;">
+          <input type="text"
+                id="gift5Input"
+                placeholder="Stage 1: greeting word"
+                autocomplete="off">
+          <button id="gift5SubmitBtn"
+                  type="button"
+                  data-g5-step1-url="{% url 'gift5_step1' %}"
+                  data-g5-step2-url="{% url 'gift5_step2' %}"
+                  data-g5-step3-url="{% url 'gift5_step3' %}">
+            ENTER
+          </button>
+        </div>
+
+        <div id="gift5Error"
+            style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
+
+        <div id="gift5Final"
+            class="card-hint {% if not gift5_done %}hidden{% endif %}">
+          <strong>DECODED:</strong><br>
+          <span data-final-text>
+            Final hint activated. The last codes have been sitting for a long time exactly where Artemi once asked me to change the recipient before sending something. Think of that place - the gift is waiting right there 😉
+          </span>
         </div>
       </div>
     </section>

@@ -28,5 +28,9 @@ urlpatterns = [
     path('api/gift4/step1/', views.gift4_step1, name='gift4_step1'),
     path('api/gift4/step2/', views.gift4_step2, name='gift4_step2'),
     path('api/gift4/step3/', views.gift4_step3, name='gift4_step3'),
+
+    path('api/gift5/step1/', views.gift5_step1, name='gift5_step1'),
+    path('api/gift5/step2/', views.gift5_step2, name='gift5_step2'),
+    path('api/gift5/step3/', views.gift5_step3, name='gift5_step3'),
 ]
 
