@@ -35,7 +35,7 @@
       <div>
         <div class="card-section-title">ЭТАП 1 · АДРЕС</div>
         <div style="margin-bottom:8px;">
-          Его ждали, чтобы собраться вместе. Куда спешил человек на такси,
+          Какой адрес, очень часто мелькал в перписках. Куда отправлял товары человек,
           которому адресовывалось видео с приколом-уликой для нуждающихся в деньгах?
         </div>
 
@@ -57,7 +57,7 @@
             ЭТАП 3 · VIN ГАЗЕЛИ
           </div>
           <div>
-            Введи VIN газели, которая привезла тебя сюда на праздник))))
+            Введи 17ти значный код газели, которая привезла тебя сюда на праздник))))
           </div>
         </div>
 
@@ -431,28 +431,75 @@
     </section>
 
     <!-- Подарок 6 -->
+    <!-- Подарок 6 -->
     <section class="card">
       <div class="card-header">
         <div class="gift-id">Подарок #6</div>
-        <div class="tag">TARGET: TBD</div>
+        <div class="tag">TARGET: FINAL DROP</div>
       </div>
 
       <div class="progress-wrap">
         <div class="progress-label">
           <span>Прогресс нахождения подарка</span>
-          <span>{{ gift1_done|yesno:"100%,0%" }}</span>
+          <span id="gift6-percent">{{ gift6_progress }}%</span>
         </div>
         <div class="progress-bar">
           <div class="progress-inner"
-               style="width: {{ gift1_done|yesno:'100,0' }}%;"></div>
+              id="gift6-bar"
+              data-complete="{{ gift6_progress }}"></div>
         </div>
       </div>
 
-      <div>
-        <div class="card-section-title">ЭТАП 1</div>
-        <div>
-          Контент для крайнего подарка.
+      <!-- LOCKED hint (ВСЕГДА в DOM) -->
+      <div id="gift6Locked"
+          class="card-hint {% if gift6_unlocked %}hidden{% endif %}">
+        <strong>LOCKED:</strong><br>
+        Система не выдаёт доступ. Сначала расшифруй подарки #1–#5.
+      </div>
+
+      <!-- Stage: READY -->
+      <div id="gift6StageReady"
+          class="{% if not gift6_unlocked or gift6_ready or gift6_done %}hidden{% endif %}">
+        <div class="card-section-title">ЭТАП 1 · ДОПУСК</div>
+        <div style="margin-bottom:8px;">
+          Протокол почти закрыт. Введи слово <strong>«готово»</strong>,
+          чтобы система открыла финальную загадку.
         </div>
+      </div>
+
+      <!-- Stage: FINAL -->
+      <div id="gift6StageFinal" class="{% if not gift6_unlocked or not gift6_ready and not gift6_done %}hidden{% endif %}">
+        <div class="card-section-title">ЭТАП 1 · ФИНАЛЬНОЕ СЛОВО</div>
+        <div style="margin-bottom:8px;">
+          Это звучит в Новый год так же часто, как “погнали в 00:00”.<br>
+          Коротко. Ярко. В воздух. Одним словом.
+        </div>
+      </div>
+
+      <div class="input-row" style="margin-top:10px;">
+        <input type="text"
+              id="gift6Input"
+              placeholder="{% if not gift6_unlocked %}LOCKED: сначала #1–#5{% elif gift6_done %}Подарок #6 расшифрован 🎁{% elif gift6_ready %}Этап 1: финальное слово{% else %}Этап 1: введи &quot;готово&quot;{% endif %}"
+              autocomplete="off"
+              {% if not gift6_unlocked or gift6_done %}disabled{% endif %}>
+        <button id="gift6SubmitBtn"
+                type="button"
+                data-g6-step1-url="{% url 'gift6_step1' %}"
+                data-status-url="{% url 'gifts_status' %}"
+                {% if not gift6_unlocked or gift6_done %}disabled{% endif %}>
+          ENTER
+        </button>
+      </div>
+
+      <div id="gift6Error"
+          style="color:#ff5555; font-size:11px; margin-top:6px; min-height:14px;"></div>
+
+      <div id="gift6Final"
+          class="card-hint {% if not gift6_done %}hidden{% endif %}">
+        <strong>ДЕКОДИРОВАНО:</strong><br>
+        <span data-final-text>
+          Финал. Подарок спрятан там, с чем Миша/Юля летают на отдых ✈️😉
+        </span>
       </div>
     </section>
   </div>

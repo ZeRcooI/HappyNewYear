@@ -110,6 +110,19 @@ document.addEventListener('DOMContentLoaded', function () {
               audio.controls = true;
               audio.src = m.audio_url;
 
+              audio.muted = true;
+              audio.volume = 0.1;
+              audio.preload = 'metadata';
+
+              audio.addEventListener('play', () => {
+                document.querySelectorAll('#trashDialog audio').forEach(a => {
+                  if (a !== audio) {
+                    a.pause();
+                    a.currentTime = 0;
+                  }
+                });
+              });
+
               inner.appendChild(label);
               inner.appendChild(audio);
               wrap.appendChild(inner);

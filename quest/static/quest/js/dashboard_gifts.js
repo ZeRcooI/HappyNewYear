@@ -1,6 +1,65 @@
 document.addEventListener('DOMContentLoaded', function () {
   const csrftoken = getCookie('csrftoken');
 
+  async function refreshGift6FromServer() {
+    const btn = document.getElementById('gift6SubmitBtn');
+    if (!btn) return;
+
+    const statusUrl = btn.dataset.statusUrl;
+    if (!statusUrl) return;
+
+    try {
+      const r = await fetch(statusUrl, {
+        method: 'GET',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const data = await r.json();
+      if (!data || !data.ok) return;
+
+      // elements
+      const locked = document.getElementById('gift6Locked');
+      const stageReady = document.getElementById('gift6StageReady');
+      const stageFinal = document.getElementById('gift6StageFinal');
+      const finalBlock = document.getElementById('gift6Final');
+      const input = document.getElementById('gift6Input');
+      const bar = document.getElementById('gift6-bar');
+      const percentLabel = document.getElementById('gift6-percent');
+
+      const unlocked = !!data.gift6_unlocked;
+      const ready = !!data.gift6_ready;
+      const done = !!data.gift6_done;
+      const progress = parseInt(data.gift6_progress || 0, 10);
+
+      // progress
+      if (bar) bar.style.width = progress + '%';
+      if (percentLabel) percentLabel.textContent = progress + '%';
+
+      // lock state
+      if (locked) locked.classList.toggle('hidden', unlocked);
+
+      // enable/disable input + button
+      if (input) input.disabled = (!unlocked || done);
+      btn.disabled = (!unlocked || done);
+
+      // stages
+      if (stageReady) stageReady.classList.toggle('hidden', (!unlocked || ready || done));
+      if (stageFinal) stageFinal.classList.toggle('hidden', (!unlocked || (!ready && !done)));
+
+      // final block
+      if (finalBlock) finalBlock.classList.toggle('hidden', !done);
+
+      // placeholder
+      if (input) {
+        if (!unlocked) input.placeholder = 'LOCKED: сначала #1–#5';
+        else if (done) input.placeholder = 'Подарок #6 расшифрован 🎁';
+        else if (ready) input.placeholder = 'Этап 1: финальное слово';
+        else input.placeholder = 'Этап 1: введи "готово"';
+      }
+    } catch (e) {
+      // молча, не мешаем пользователю
+    }
+  }
+
   // ---------- АНИМАЦИЯ ПРОГРЕСС-БАРА ПРИ ЗАГРУЗКЕ (ПОДАРОК #1) ----------
   (function () {
     const bar = document.getElementById('gift1-bar');
@@ -36,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
       bar.style.width = complete + '%';
     });
   })();
+
 
   // ---------- ПОДАРОК #1: АДРЕС / БД / VIN ----------
   (function () {
@@ -139,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function setFinalDone(finalTextFromServer) {
       bar.style.width = '100%';
-      percentLabel.textContent = '100%';
+      if (percentLabel) percentLabel.textContent = '100%';
 
       if (stage2Block) stage2Block.classList.remove('hidden');
       if (stage3Block) stage3Block.classList.remove('hidden');
@@ -160,6 +220,8 @@ document.addEventListener('DOMContentLoaded', function () {
       finished = true;
       if (err) err.textContent = '';
       applyFinishedState();
+
+      refreshGift6FromServer();
     }
 
     btn.addEventListener('click', () => {
@@ -270,10 +332,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updatePlaceholder();
 
-        // даём знать другим подаркам, что всё сброшено
         document.dispatchEvent(new Event('giftsReset'));
 
-        // чистим серверную сессию
         const resetUrl = testBtn.dataset.resetUrl || '';
         if (!resetUrl) return;
 
@@ -285,7 +345,12 @@ document.addEventListener('DOMContentLoaded', function () {
             'Content-Type': 'application/x-www-form-urlencoded'
           },
           body: new URLSearchParams({})
-        }).catch(() => { });
+        })
+          .then(r => r.json())
+          .then(() => {
+            refreshGift6FromServer();
+          })
+          .catch(() => { });
       });
     }
   })();
@@ -395,6 +460,7 @@ document.addEventListener('DOMContentLoaded', function () {
       finished = true;
       if (err) err.textContent = '';
       applyFinishedState();
+      refreshGift6FromServer();
     }
 
     updatePlaceholder();
@@ -600,6 +666,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (input) input.value = '';
       if (err) err.textContent = 'Подарок #3 расшифрован 🎁';
       updatePlaceholder();
+      refreshGift6FromServer();
     }
 
     btn.addEventListener('click', () => {
@@ -812,6 +879,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (err) err.textContent = 'Подарок #4 расшифрован 🎁';
       updatePlaceholder();
       applyFinishedState();
+      refreshGift6FromServer();
     }
 
     updatePlaceholder();
@@ -1166,6 +1234,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (err) err.textContent = 'Gift #5 decoded 🎁';
       updatePlaceholder();
       applyFinishedState();
+      refreshGift6FromServer();
     }
 
     updatePlaceholder();
@@ -1277,6 +1346,181 @@ document.addEventListener('DOMContentLoaded', function () {
       if (err) err.textContent = '';
 
       updatePlaceholder();
+    });
+  })();
+
+  // ---------- ПОДАРОК #6: ГОТОВО -> САЛЮТ ----------
+  (function () {
+    const input = document.getElementById('gift6Input');
+    const btn = document.getElementById('gift6SubmitBtn');
+    const bar = document.getElementById('gift6-bar');
+    const percentLabel = document.getElementById('gift6-percent');
+
+    const stageReady = document.getElementById('gift6StageReady');
+    const stageFinal = document.getElementById('gift6StageFinal');
+    const finalBlock = document.getElementById('gift6Final');
+    const err = document.getElementById('gift6Error');
+
+    if (!btn || !input || !bar || !percentLabel) return;
+
+    const stepUrl = btn.dataset.g6Step1Url || '';
+
+    // init progress
+    const complete = parseInt(bar.dataset.complete || '0', 10);
+    bar.style.width = complete + '%';
+    percentLabel.textContent = complete + '%';
+
+    let stage = 1; // 1 = ready("готово"), 2 = final("салют")
+    let finished = false;
+
+    if (finalBlock && !finalBlock.classList.contains('hidden')) {
+      finished = true;
+      stage = 2;
+    } else if (stageFinal && !stageFinal.classList.contains('hidden')) {
+      stage = 2;
+    } else {
+      stage = 1;
+    }
+
+    function updatePlaceholder() {
+      if (finished) {
+        input.placeholder = 'Подарок #6 расшифрован 🎁';
+        return;
+      }
+      input.placeholder = (stage === 1)
+        ? 'Этап 1: введи "готово"'
+        : 'Этап 1: финальное слово';
+    }
+
+    function setProgress(v) {
+      bar.style.width = v + '%';
+      percentLabel.textContent = v + '%';
+    }
+
+    function setReadyStage() {
+      stage = 2;
+      setProgress(50);
+      if (stageReady) stageReady.classList.add('hidden');
+      if (stageFinal) stageFinal.classList.remove('hidden');
+      input.value = '';
+      if (err) err.textContent = 'Доступ получен. Теперь финальное слово 😉';
+      updatePlaceholder();
+    }
+
+    function setDone(finalTextFromServer) {
+      finished = true;
+      setProgress(100);
+      if (stageReady) stageReady.classList.add('hidden');
+      if (stageFinal) stageFinal.classList.remove('hidden');
+
+      if (finalBlock) {
+        finalBlock.classList.remove('hidden');
+        const textEl = finalBlock.querySelector('[data-final-text]');
+        if (textEl && finalTextFromServer) textEl.textContent = finalTextFromServer;
+      }
+
+      input.value = '';
+      input.disabled = true;
+      btn.disabled = true;
+      if (err) err.textContent = '';
+      updatePlaceholder();
+    }
+
+    updatePlaceholder();
+    if (finished) {
+      input.disabled = true;
+      btn.disabled = true;
+    }
+
+    function send(answer) {
+      if (!stepUrl) {
+        if (err) err.textContent = 'Не настроен адрес проверки.';
+        return;
+      }
+
+      fetch(stepUrl, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken || '',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({ answer })
+      })
+        .then(async (r) => {
+          let json = null;
+          try { json = await r.json(); } catch (e) { json = null; }
+          return { status: r.status, json };
+        })
+        .then(({ status, json }) => {
+          if (status === 403 && json && json.error === 'locked') {
+            if (err) err.textContent = 'Сначала расшифруй подарки #1–#5.';
+            // сразу подтянем статус — вдруг уже открылось/закрылось
+            refreshGift6FromServer();
+            return;
+          }
+
+          if (!json) {
+            if (err) err.textContent = 'Сервер вернул некорректный ответ. Попробуй ещё раз.';
+            return;
+          }
+
+          if (json.ok) {
+            if (json.stage === 'ready') {
+              setReadyStage();
+            } else if (json.stage === 'done') {
+              setDone(json.final_text || '');
+            }
+            // после любого успеха — синхронизируемся с сервером
+            refreshGift6FromServer();
+            return;
+          }
+
+          if (!err) return;
+          if (stage === 1) err.textContent = 'Не. Сначала введи слово допуска 😉';
+          else err.textContent = 'Не то слово. Оно звучит на Новый год из каждого окна 😏';
+        })
+        .catch(() => {
+          if (err) err.textContent = 'Системная ошибка. Попробуй ещё раз.';
+        });
+    }
+
+    btn.addEventListener('click', () => {
+      if (finished) return;
+      if (err) err.textContent = '';
+
+      const value = (input.value || '').trim();
+      if (!value) {
+        if (err) err.textContent = 'Введите значение.';
+        return;
+      }
+
+      send(value);
+    });
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+
+    document.addEventListener('giftsReset', () => {
+      stage = 1;
+      finished = false;
+      setProgress(0);
+
+      if (stageReady) stageReady.classList.remove('hidden');
+      if (stageFinal) stageFinal.classList.add('hidden');
+      if (finalBlock) finalBlock.classList.add('hidden');
+
+      input.disabled = false;
+      btn.disabled = false;
+      input.value = '';
+      if (err) err.textContent = '';
+      updatePlaceholder();
+
+      refreshGift6FromServer();
     });
   })();
 });

@@ -1,18 +1,33 @@
 import re
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from .models import EvidenceItem, TrashMessage
+
 
 LOGIN_CODE = "fitbud2556"
 GIFT1_STAGE1_CODE = "ГРЕКОВА5"
 BD_PASSWORD = "),OK<A2Wbo^-#H"
 VIN_CODE = "KMHR381ABMU202591"
 TRASH_PASSWORD = "solo322"
+GIFT6_READY_CODE = "ГОТОВО"
+GIFT6_FINAL_CODE = "САЛЮТ"
 
 
 def _normalize_code(value: str) -> str:
     return ''.join(value.split()).upper()
+
+
+def _normalize_word(value: str) -> str:
+    return _normalize_code(value or '')
+
+
+def _is_gift6_ready_ok(value: str) -> bool:
+    return _normalize_word(value) in {"ГОТОВО", "GOTOVO"}
+
+
+def _is_gift6_final_ok(value: str) -> bool:
+    return _normalize_word(value) in {"САЛЮТ", "SALUT"}
 
 
 def normalize_pw(pw: str) -> str:
@@ -141,6 +156,8 @@ def logout_view(request):
         'gift2_stage1', 'gift2_stage2', 'gift2_done',
         'gift3_stage1', 'gift3_stage2', 'gift3_done',
         'gift4_stage1', 'gift4_stage2', 'gift4_done',
+        'gift5_stage1', 'gift5_stage2', 'gift5_done',
+        'gift6_ready', 'gift6_done',
     ]:
         request.session.pop(key, None)
     return redirect('login')
@@ -261,6 +278,25 @@ def dashboard(request):
     else:
         gift5_progress = 0
 
+    # --- Подарок 6 ---
+    gift6_ready = request.session.get('gift6_ready', False)
+    gift6_done = request.session.get('gift6_done', False)
+
+    all5_done = all([
+        request.session.get('gift1_done', False),
+        request.session.get('gift2_done', False),
+        request.session.get('gift3_done', False),
+        request.session.get('gift4_done', False),
+        request.session.get('gift5_done', False),
+    ])
+
+    if gift6_done:
+        gift6_progress = 100
+    elif gift6_ready:
+        gift6_progress = 50
+    else:
+        gift6_progress = 0
+
     context = {
         'gift1_done': gift1_done,
         'gift1_stage1': gift1_stage1,
@@ -286,6 +322,11 @@ def dashboard(request):
         'gift5_stage1': gift5_stage1,
         'gift5_stage2': gift5_stage2,
         'gift5_progress': gift5_progress,
+
+        'gift6_done': gift6_done,
+        'gift6_ready': gift6_ready,
+        'gift6_progress': gift6_progress,
+        'gift6_unlocked': all5_done,
 
         'vin_code_len': len(VIN_CODE),
         'vin_code': VIN_CODE,
@@ -369,6 +410,10 @@ def reset_vin(request):
     for key in list(request.session.keys()):
         if key.startswith('gift'):
             request.session.pop(key, None)
+
+    request.session.pop('gift6_ready', None)
+    request.session.pop('gift6_done', None)
+
     return JsonResponse({'ok': True})
 
 
@@ -577,3 +622,65 @@ def gift5_step3(request):
         ),
     })
 
+
+@require_POST
+def gift6_step1(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    if not request.session.get('gift1_done') \
+       or not request.session.get('gift2_done') \
+       or not request.session.get('gift3_done') \
+       or not request.session.get('gift4_done') \
+       or not request.session.get('gift5_done'):
+        return JsonResponse({'ok': False, 'error': 'locked'}, status=403)
+
+    answer = request.POST.get('answer', '') or ''
+
+    if not request.session.get('gift6_ready'):
+        if _is_gift6_ready_ok(answer):
+            request.session['gift6_ready'] = True
+            return JsonResponse({'ok': True, 'stage': 'ready'})
+        return JsonResponse({'ok': False, 'error': 'wrong_ready'})
+
+    if _is_gift6_final_ok(answer):
+        request.session['gift6_done'] = True
+        return JsonResponse({
+            'ok': True,
+            'stage': 'done',
+            'final_text': 'Финал. Подарок спрятан там, с чем Миша/Юля летают на отдых ✈️😉',
+        })
+
+    return JsonResponse({'ok': False, 'error': 'wrong_final'})
+
+
+@require_GET
+def gifts_status(request):
+    if not request.session.get('quest_logged_in'):
+        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
+
+    all5_done = all([
+        request.session.get('gift1_done', False),
+        request.session.get('gift2_done', False),
+        request.session.get('gift3_done', False),
+        request.session.get('gift4_done', False),
+        request.session.get('gift5_done', False),
+    ])
+
+    gift6_ready = bool(request.session.get('gift6_ready', False))
+    gift6_done = bool(request.session.get('gift6_done', False))
+
+    if gift6_done:
+        gift6_progress = 100
+    elif gift6_ready:
+        gift6_progress = 50
+    else:
+        gift6_progress = 0
+
+    return JsonResponse({
+        'ok': True,
+        'gift6_unlocked': all5_done,
+        'gift6_ready': gift6_ready,
+        'gift6_done': gift6_done,
+        'gift6_progress': gift6_progress,
+    })
