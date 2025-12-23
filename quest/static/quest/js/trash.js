@@ -39,9 +39,9 @@ document.addEventListener('DOMContentLoaded', function () {
     closeBtn.addEventListener('click', closeModal);
   }
 
-  modal.addEventListener('click', e => {
-    if (e.target === modal) closeModal();
-  });
+  // modal.addEventListener('click', e => {
+  //   if (e.target === modal) closeModal();
+  // });
 
   submitBtn.addEventListener('click', () => {
     if (msg) {
@@ -102,9 +102,9 @@ document.addEventListener('DOMContentLoaded', function () {
               const inner = document.createElement('div');
               inner.classList.add('trash-msg-inner');
 
-              const label = document.createElement('div');
-              label.classList.add('trash-msg-speaker');
-              label.textContent = (m.speaker === 'B' ? 'Собеседник B' : 'Собеседник A');
+              // const label = document.createElement('div');
+              // label.classList.add('trash-msg-speaker');
+              // label.textContent = (m.speaker === 'B' ? 'Собеседник B' : 'Собеседник A');
 
               const audio = document.createElement('audio');
               audio.controls = true;
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
               });
 
-              inner.appendChild(label);
+              // inner.appendChild(label);
               inner.appendChild(audio);
               wrap.appendChild(inner);
               dialog.appendChild(wrap);

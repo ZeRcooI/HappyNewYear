@@ -15,13 +15,13 @@
     {% for item in items %}
       <button class="gallery-item"
               data-type="video"
-              data-full-src="{{ item.file.url }}"
+              data-full-src="{{ item.url }}"
               data-title="{{ item.title }}">
-        
+
         <video class="gallery-thumb-video"
-               src="{{ item.file.url }}"
-               preload="metadata"
-               muted>
+              src="{{ item.url }}"
+              preload="metadata"
+              muted>
         </video>
 
         <div class="gallery-video-overlay">

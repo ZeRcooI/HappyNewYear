@@ -15,9 +15,9 @@
     {% for item in items %}
       <button class="gallery-item"
               data-type="photo"
-              data-full-src="{{ item.file.url }}"
+              data-full-src="{{ item.url }}"
               data-title="{{ item.title }}">
-        <img src="{{ item.file.url }}" alt="{{ item.title }}">
+        <img src="{{ item.url }}" alt="{{ item.title }}">
       </button>
     {% empty %}
       <p>Пока нет улик-фотографий.</p>

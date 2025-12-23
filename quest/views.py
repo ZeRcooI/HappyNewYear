@@ -3,6 +3,9 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST, require_GET
 from .models import EvidenceItem, TrashMessage
+from pathlib import Path
+from django.conf import settings
+from django.templatetags.static import static
 
 
 LOGIN_CODE = "fitbud2556"
@@ -28,6 +31,66 @@ def _is_gift6_ready_ok(value: str) -> bool:
 
 def _is_gift6_final_ok(value: str) -> bool:
     return _normalize_word(value) in {"САЛЮТ", "SALUT"}
+
+
+def _list_static_files(subdir: str, exts: set[str]) -> list[dict]:
+    candidates = [
+        Path(settings.BASE_DIR) / "static" / subdir,
+        Path(settings.BASE_DIR).parent / "static" / subdir,
+        Path(settings.BASE_DIR) / "quest" / "static" / subdir,
+        Path(settings.BASE_DIR).parent / "quest" / "static" / subdir,
+    ]
+
+    base = next((p for p in candidates if p.exists()), None)
+    if not base:
+        return []
+
+    items = []
+    for p in sorted(base.iterdir(), key=lambda x: x.name.lower()):
+        if not p.is_file():
+            continue
+        if p.suffix.lower() not in exts:
+            continue
+
+        items.append({
+            "title": p.stem,
+            "url": static(f"{subdir}/{p.name}"),
+        })
+
+    return items
+
+
+def _list_static_audio(subdir: str = "audio", exts: set[str] = {".wav", ".mp3", ".ogg", ".m4a"}):
+    candidates = [
+        Path(settings.BASE_DIR) / "static" / subdir,
+        Path(settings.BASE_DIR).parent / "static" / subdir,
+        Path(settings.BASE_DIR) / "quest" / "static" / subdir,
+        Path(settings.BASE_DIR).parent / "quest" / "static" / subdir,
+    ]
+    base = next((p for p in candidates if p.exists()), None)
+    if not base:
+        return []
+
+    def sort_key(p: Path):
+        m = re.match(r"^\s*(\d+)", p.stem)
+        if m:
+            return (0, int(m.group(1)), p.name.lower())
+        return (1, 10**9, p.name.lower())
+
+    items = []
+    for p in sorted(base.iterdir(), key=sort_key):
+        if not p.is_file():
+            continue
+        if p.suffix.lower() not in exts:
+            continue
+
+        items.append({
+            "title": p.stem,
+            "audio_url": static(f"{subdir}/{p.name}"),
+            "speaker": "A", 
+        })
+    return items
+
 
 
 def normalize_pw(pw: str) -> str:
@@ -341,7 +404,7 @@ def evidence_photos(request):
     if guard:
         return guard
 
-    items = EvidenceItem.objects.filter(item_type=EvidenceItem.PHOTO)
+    items = _list_static_files("images", {".png", ".jpg", ".jpeg", ".webp", ".gif"})
     return render(request, 'quest/evidence_photos.html', {
         'active_section': 'photos',
         'items': items,
@@ -354,8 +417,7 @@ def evidence_files(request):
     if guard:
         return guard
 
-    items = EvidenceItem.objects.filter(item_type=EvidenceItem.FILE)
-
+    items = _list_static_files("files", {".pdf", ".txt", ".doc", ".docx", ".png", ".jpg", ".jpeg", ".webp"})
     return render(request, 'quest/evidence_files.html', {
         'active_section': 'files',
         'items': items,
@@ -368,7 +430,7 @@ def evidence_videos(request):
     if guard:
         return guard
 
-    items = EvidenceItem.objects.filter(item_type=EvidenceItem.VIDEO)
+    items = _list_static_files("video", {".mp4", ".webm", ".mov", ".m4v"})
     return render(request, 'quest/evidence_videos.html', {
         'active_section': 'videos',
         'items': items,
@@ -380,26 +442,17 @@ def evidence_videos(request):
 def open_trash(request):
     if not request.session.get('quest_logged_in'):
         return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
-    
+
     raw_pwd = request.POST.get('password', '') or ''
+    if normalize_pw(raw_pwd) != normalize_pw(TRASH_PASSWORD):
+        return JsonResponse({'ok': False, 'error': 'Неверный пароль'})
 
-    if normalize_pw(raw_pwd) == normalize_pw(TRASH_PASSWORD):
-        messages = TrashMessage.objects.all()
-        msg_payload = []
-        for m in messages:
-            msg_payload.append({
-                'id': m.id,
-                'speaker': m.speaker,
-                'title': m.title,
-                'audio_url': m.audio.url,
-            })
-
-        return JsonResponse({
-            'ok': True,
-            'message': 'Удалённые записи восстановлены.',
-            'messages': msg_payload,
-        })
-    return JsonResponse({'ok': False, 'error': 'Неверный пароль'})
+    messages = _list_static_audio("audio")
+    return JsonResponse({
+        'ok': True,
+        'message': 'Удалённые записи восстановлены.',
+        'messages': messages,
+    })
 
 
 @require_POST

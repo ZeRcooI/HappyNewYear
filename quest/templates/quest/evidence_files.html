@@ -15,12 +15,10 @@
     {% for item in items %}
       <button class="gallery-item"
               type="button"
-              data-file-url="{{ item.file.url }}">
+              data-file-url="{{ item.url }}">
         <div class="gallery-video-thumb">
           <div class="video-play-icon">📄</div>
-          <div class="video-caption">
-            {{ item.title }}
-          </div>
+          <div class="video-caption">{{ item.title }}</div>
         </div>
       </button>
     {% empty %}
