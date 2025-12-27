@@ -347,7 +347,6 @@ def dashboard(request):
 
     all5_done = all([
         request.session.get('gift1_done', False),
-        request.session.get('gift2_done', False),
         request.session.get('gift3_done', False),
         request.session.get('gift4_done', False),
         request.session.get('gift5_done', False),
@@ -466,50 +465,7 @@ def reset_vin(request):
 
     request.session.pop('gift6_ready', None)
     request.session.pop('gift6_done', None)
-
     return JsonResponse({'ok': True})
-
-
-@require_POST
-def gift2_step1(request):
-    if not request.session.get('quest_logged_in'):
-        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
-
-    answer = request.POST.get('answer', '') or ''
-    if _is_fav_game_ok(answer):
-        request.session['gift2_stage1'] = True
-        return JsonResponse({'ok': True})
-    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
-
-
-@require_POST
-def gift2_step2(request):
-    if not request.session.get('quest_logged_in'):
-        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
-
-    answer = request.POST.get('answer', '') or ''
-    if _is_megatron_ok(answer):
-        request.session['gift2_stage2'] = True
-        return JsonResponse({'ok': True})
-    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
-
-
-@require_POST
-def gift2_step3(request):
-    if not request.session.get('quest_logged_in'):
-        return JsonResponse({'ok': False, 'error': 'unauthorized'}, status=403)
-
-    answer = request.POST.get('answer', '') or ''
-    if _is_photo_choice_ok(answer):
-        request.session['gift2_done'] = True
-        return JsonResponse({
-            'ok': True,
-            'final_text': (
-                "Локация разблокирована! Твой подарок уже очень давно "
-                "лежит в Figma - ищи его за логотипом 🎁"
-            ),
-        })
-    return JsonResponse({'ok': False, 'error': 'wrong_answer'})
 
 
 @require_POST
